@@ -16,6 +16,15 @@ const statusMap: Record<string, string | undefined> = {
   upcoming: 'NOT_YET_RELEASED'
 }
 
+const formatMap: Record<string, string | undefined> = {
+  all: undefined,
+  TV: 'TV',
+  MOVIE: 'MOVIE',
+  OVA: 'OVA',
+  ONA: 'ONA',
+  SPECIAL: 'SPECIAL'
+}
+
 export default defineEventHandler(async (event): Promise<FilterCatalog> => {
   setHeader(event, 'Cache-Control', 'public, max-age=600, stale-while-revalidate=1800')
 
@@ -23,6 +32,7 @@ export default defineEventHandler(async (event): Promise<FilterCatalog> => {
   const page = Number.parseInt(String(query.page || '1'), 10)
   const genre = String(query.genre || 'all')
   const status = String(query.status || 'all')
+  const format = String(query.format || 'all')
   const sort = String(query.sort || 'default')
   const search = String(query.search || '').trim()
 
@@ -31,6 +41,7 @@ export default defineEventHandler(async (event): Promise<FilterCatalog> => {
     perPage: 24,
     genre: genre === 'all' ? undefined : genre,
     status: statusMap[status],
+    format: formatMap[format],
     search: search || undefined,
     sort: sortMap[sort] || sortMap.default
   })

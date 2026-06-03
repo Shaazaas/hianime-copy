@@ -45,10 +45,15 @@ export function formatDateLabel(value: string | null) {
   return value
 }
 
+export function normalizeVisibleText(value: string) {
+  return value.replace(/[—–]/g, '-')
+}
+
 export function stripHtml(value: string | null | undefined) {
   return (value || 'No description is available from AniList yet.')
     .replace(/<br\s*\/?>/gi, ' ')
     .replace(/<\/?[^>]+(>|$)/g, '')
+    .replace(/[—–]/g, '-')
     .replace(/\s+/g, ' ')
     .trim()
 }

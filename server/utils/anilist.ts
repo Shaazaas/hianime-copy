@@ -1,4 +1,4 @@
-import { animeSlug, stripHtml } from '../../app/utils/anime'
+import { animeSlug, normalizeVisibleText, stripHtml } from '../../app/utils/anime'
 import type { AnimeCharacter, AnimeDetail, AnimeListItem } from '../../app/types/anime'
 
 const ANILIST_URL = 'https://graphql.anilist.co'
@@ -137,7 +137,7 @@ export const listMediaFragment = `
 `
 
 export function normalizeMedia(media: GraphMedia): AnimeListItem {
-  const displayTitle = media.title.english || media.title.romaji || media.title.native || 'Unknown title'
+  const displayTitle = normalizeVisibleText(media.title.english || media.title.romaji || media.title.native || 'Unknown title')
 
   return {
     id: media.id,
@@ -210,10 +210,10 @@ export function normalizeDetail(media: GraphMedia): AnimeDetail {
 
 export async function fetchMediaList(variables: Record<string, unknown>) {
   const query = `
-    query CatalogList($page: Int, $perPage: Int, $sort: [MediaSort], $status: MediaStatus, $search: String, $genre: String, $seasonYear: Int) {
+    query CatalogList($page: Int, $perPage: Int, $sort: [MediaSort], $status: MediaStatus, $format: MediaFormat, $search: String, $genre: String, $seasonYear: Int) {
       Page(page: $page, perPage: $perPage) {
         pageInfo { total currentPage hasNextPage }
-        media(type: ANIME, sort: $sort, status: $status, search: $search, genre: $genre, seasonYear: $seasonYear, isAdult: false) {
+        media(type: ANIME, sort: $sort, status: $status, format: $format, search: $search, genre: $genre, seasonYear: $seasonYear, isAdult: false) {
           ${listMediaFragment}
         }
       }
@@ -223,6 +223,6 @@ export async function fetchMediaList(variables: Record<string, unknown>) {
   return normalizePage(await anilistRequest<PageResponse>(query, variables))
 }
 
-export function normalizeMediaPage(page: PageResponse['Page']) {
+export function normalizeMediaPage(page: Pick<PageResponse['Page'], 'media'>) {
   return page.media.map(normalizeMedia)
 }
