@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { AnimeListItem } from '@/types/anime'
-import { detailPath, formatKind } from '@/utils/anime'
+import { detailPath } from '@/utils/anime'
 import MetaBadges from './MetaBadges.vue'
 import SectionHeader from './SectionHeader.vue'
 
@@ -8,93 +8,35 @@ defineProps<{
   title: string
   items: AnimeListItem[]
 }>()
+
+const viewTransitionSource = useId()
+const { markAnimeViewTransition, sourceViewTransitionStyle } = useAnimeViewTransition()
+
+const viewTransitionKey = (item: AnimeListItem, index: number) => `${viewTransitionSource}-${item.id}-${index}`
 </script>
 
 <template>
-  <section>
+  <section class="min-w-0">
     <SectionHeader :title="title" to="/filter" />
-    <div class="list-lane">
-      <NuxtLink
-        v-for="item in items.slice(0, 5)"
+    <UPageList class="gap-0" divide>
+      <ULink
+        v-for="(item, index) in items.slice(0, 5)"
         :key="item.id"
+        raw
         :to="detailPath(item)"
-        class="list-lane__item"
+        class="catalog-motion-card grid min-h-[108px] min-w-0 grid-cols-[72px_minmax(0,1fr)] items-center gap-4 py-4 max-[620px]:min-h-[96px] max-[620px]:grid-cols-[60px_minmax(0,1fr)] max-[620px]:gap-3 max-[620px]:py-3"
+        @pointerdown="markAnimeViewTransition(item, viewTransitionKey(item, index))"
+        @click="markAnimeViewTransition(item, viewTransitionKey(item, index))"
       >
-        <img :src="item.coverImage" :alt="item.displayTitle" loading="lazy">
-        <span class="list-lane__copy">
-          <strong>{{ item.displayTitle }}</strong>
-          <small>{{ formatKind(item.badges.format) }}</small>
-          <MetaBadges :media="item" />
+        <img class="h-[94px] w-[70px] rounded object-cover max-[620px]:h-[82px] max-[620px]:w-[58px]" :style="sourceViewTransitionStyle('cover', item.id, viewTransitionKey(item, index))" :src="item.coverImage" :alt="item.displayTitle" loading="lazy">
+        <span class="flex min-w-0 flex-col gap-3">
+          <strong class="line-clamp-2 text-base font-bold leading-tight text-highlighted" :style="sourceViewTransitionStyle('title', item.id, viewTransitionKey(item, index))">{{ item.displayTitle }}</strong>
+          <MetaBadges :style="sourceViewTransitionStyle('meta', item.id, viewTransitionKey(item, index))" :media="item" />
         </span>
-      </NuxtLink>
-    </div>
+      </ULink>
+    </UPageList>
+    <UButton to="/filter" color="neutral" variant="link" size="xl" trailing-icon="i-lucide-chevron-right" class="mt-4 px-0 text-xl font-semibold">
+      View more
+    </UButton>
   </section>
 </template>
-
-<style scoped>
-.list-lane {
-  display: grid;
-  gap: 12px;
-}
-
-.list-lane__item {
-  display: grid;
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: 10px;
-  min-width: 0;
-  align-items: center;
-}
-
-.list-lane__item img {
-  width: 52px;
-  height: 68px;
-  border-radius: 4px;
-  object-fit: cover;
-}
-
-.list-lane__copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.list-lane__copy strong {
-  color: hsl(var(--foreground));
-  font-size: 0.82rem;
-  font-weight: 800;
-  line-height: 1.18;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.list-lane__copy small {
-  color: hsl(var(--muted-foreground));
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-@media (max-width: 1000px) {
-  .list-lane {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 760px) {
-  .list-lane {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 420px) {
-  .list-lane__item {
-    grid-template-columns: 46px minmax(0, 1fr);
-  }
-
-  .list-lane__item img {
-    width: 46px;
-    height: 62px;
-  }
-}
-</style>

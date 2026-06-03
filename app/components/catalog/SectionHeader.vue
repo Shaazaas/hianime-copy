@@ -6,29 +6,12 @@ defineProps<{
 </script>
 
 <template>
-  <div class="section-header">
-    <h2>{{ title }}</h2>
-    <NuxtLink v-if="to" :to="to">View More</NuxtLink>
+  <div class="mb-6 flex items-center justify-between gap-4 max-[620px]:mb-4">
+    <h2 class="text-[22px] font-semibold leading-[1.3] text-[#ffbade] max-[620px]:text-xl">{{ title }}</h2>
+    <div>
+      <UButton v-if="to" :to="to" color="neutral" variant="link" size="sm" trailing-icon="i-lucide-chevron-right" class="px-0 text-xs font-normal text-[#aaa] hover:text-[#ffbade]">
+        View More
+      </UButton>
+    </div>
   </div>
 </template>
-
-<style scoped>
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.section-header h2 {
-  color: hsl(var(--primary));
-  font-size: 1.45rem;
-  font-weight: 800;
-}
-
-.section-header a {
-  color: hsl(var(--muted-foreground));
-  font-size: 0.78rem;
-  font-weight: 600;
-}
-</style>

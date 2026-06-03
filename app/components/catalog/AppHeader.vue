@@ -1,152 +1,90 @@
 <script setup lang="ts">
-import { Globe, Heart, Menu, MessageCircle, Radio, Send } from '@lucide/vue'
-import { Button } from '@/components/ui/button'
 import BrandLogo from './BrandLogo.vue'
 import SearchSuggest from './SearchSuggest.vue'
 
 const nav = [
-  { label: 'Home', to: '/' },
+  { label: 'Home', to: '/home' },
+  { label: 'Subbed Anime', to: '/filter?format=TV' },
+  { label: 'Dubbed Anime', to: '/filter?sort=popular' },
+  { label: 'Most Popular', to: '/filter?sort=popular' },
   { label: 'Movies', to: '/filter?format=MOVIE' },
   { label: 'TV Series', to: '/filter?format=TV' },
-  { label: 'Most Popular', to: '/filter?sort=popular' },
-  { label: 'Top Airing', to: '/filter?status=airing' }
+  { label: 'OVAs', to: '/filter?format=OVA' },
+  { label: 'ONAs', to: '/filter?format=ONA' },
+  { label: 'Specials', to: '/filter?format=SPECIAL' }
+]
+
+const quickLinks = [
+  { label: 'Watch2gether', icon: 'i-lucide-radio-tower', to: '/filter?sort=trending' },
+  { label: 'Random', icon: 'i-lucide-shuffle', to: '/filter?sort=popular' },
+  { label: 'Anime Name', icon: 'i-lucide-languages', to: '/filter' },
+  { label: 'News', icon: 'i-lucide-rss', to: '/filter?status=airing' },
+  { label: 'Community', icon: 'i-lucide-messages-square', to: '/filter?format=TV' }
+]
+
+const socialLinks = [
+  { label: 'Discord', icon: 'i-lucide-message-circle', class: 'bg-[#6f85d5]' },
+  { label: 'Telegram', icon: 'i-lucide-send', class: 'bg-[#08c]' },
+  { label: 'Reddit', icon: 'i-lucide-badge-alert', class: 'bg-[#ff3c1f]' },
+  { label: 'Twitter', icon: 'i-lucide-twitter', class: 'bg-[#1d9bf0]' }
 ]
 </script>
 
 <template>
-  <header class="app-header">
-    <div class="app-header__inner">
-      <Button variant="ghost" size="icon" aria-label="Open menu" class="app-header__menu">
-        <ClientOnly><Menu data-icon="inline-start" /></ClientOnly>
-      </Button>
-      <BrandLogo />
-      <SearchSuggest class="app-header__search" />
-      <nav class="app-header__nav" aria-label="Primary">
-        <NuxtLink v-for="item in nav" :key="item.label" :to="item.to">{{ item.label }}</NuxtLink>
-      </nav>
-      <div class="app-header__actions">
-        <span><ClientOnly><MessageCircle /></ClientOnly> Discord</span>
-        <span><ClientOnly><Send /></ClientOnly> Telegram</span>
-        <span><ClientOnly><Radio /></ClientOnly> Community</span>
-        <span><ClientOnly><Heart /></ClientOnly> Favourites</span>
-        <span><ClientOnly><Globe /></ClientOnly> Social</span>
+  <header class="fixed inset-x-0 top-0 z-[102] h-[70px] bg-[#201f31]/95 text-white backdrop-blur-[10px] max-[760px]:h-[50px]">
+    <div class="relative mx-auto flex h-full w-full max-w-[1800px] items-center px-[15px] max-[760px]:px-0">
+      <details class="group contents">
+        <summary aria-label="Open navigation" class="absolute left-1.5 top-[15px] z-[4] flex size-10 cursor-pointer list-none items-center justify-center rounded-[3px] text-white marker:hidden max-[760px]:top-[5px]">
+          <UIcon name="i-lucide-menu" class="size-7" />
+        </summary>
+
+        <div class="fixed inset-0 z-[101] hidden bg-black/45 group-open:block" />
+        <aside class="fixed bottom-0 left-0 top-0 z-[102] w-[320px] max-w-[86vw] -translate-x-full overflow-y-auto bg-[#2d2b44] px-5 py-5 text-white shadow-[20px_0_60px_rgba(0,0,0,.35)] transition-transform duration-300 group-open:translate-x-0">
+          <div class="mb-5">
+            <span class="inline-flex rounded-full bg-[#3a3951] px-4 py-2 text-sm font-medium text-white">Close menu</span>
+          </div>
+          <div class="mb-5 grid grid-cols-4 gap-2">
+            <ULink v-for="item in quickLinks.slice(0, 4)" :key="item.label" raw :to="item.to" class="rounded-xl bg-white/10 p-3 text-center text-xs font-medium hover:text-[#ffbade]">
+              <UIcon :name="item.icon" class="mx-auto mb-1 size-5 text-[#ffbade]" />
+              {{ item.label }}
+            </ULink>
+          </div>
+          <nav aria-label="Mobile navigation">
+            <ULink v-for="item in nav" :key="item.label" raw :to="item.to" class="block border-b border-white/10 py-3 text-sm font-medium hover:text-[#ffbade]">
+              {{ item.label }}
+            </ULink>
+          </nav>
+        </aside>
+      </details>
+
+      <div class="ml-[50px] mr-[25px] h-10 max-[760px]:ml-12 max-[760px]:mr-0 max-[760px]:h-9">
+        <BrandLogo />
       </div>
-      <Button size="sm" class="app-header__login">Login</Button>
+
+      <SearchSuggest mode="header" />
+
+      <div class="ml-[30px] flex h-10 items-center gap-1.5 max-[1320px]:hidden">
+        <span class="mr-1 flex w-[38px] flex-col justify-center text-center text-sm font-normal leading-none text-white/50">Join now</span>
+        <button
+          v-for="item in socialLinks"
+          :key="item.label"
+          type="button"
+          :aria-label="item.label"
+          class="inline-flex size-8 items-center justify-center rounded-full text-white"
+          :class="item.class"
+        >
+          <UIcon :name="item.icon" class="size-4" />
+        </button>
+      </div>
+
+      <nav class="ml-auto flex h-full items-center gap-6 pr-4 max-[1040px]:hidden" aria-label="Quick links">
+        <ULink v-for="item in quickLinks" :key="item.label" raw :to="item.to" class="flex h-full min-w-[76px] flex-col items-center justify-center text-center text-[13px] font-medium leading-tight text-white hover:text-[#ffbade]">
+          <UIcon :name="item.icon" class="mb-1 size-5 text-[#ffbade]" />
+          {{ item.label }}
+        </ULink>
+      </nav>
+
+      <UButton to="/filter" color="neutral" variant="ghost" icon="i-lucide-search" aria-label="Search" class="ml-auto hidden size-10 rounded-none text-white max-[760px]:inline-flex" />
     </div>
   </header>
 </template>
-
-<style scoped>
-.app-header {
-  position: sticky;
-  z-index: 30;
-  top: 0;
-  background: hsl(var(--background) / 0.92);
-  backdrop-filter: blur(14px);
-}
-
-.app-header__inner {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  width: min(1460px, calc(100% - 48px));
-  min-height: 66px;
-  margin: 0 auto;
-}
-
-.app-header__menu {
-  color: hsl(var(--foreground));
-}
-
-.app-header__search {
-  flex: 0 1 430px;
-}
-
-.app-header__nav {
-  display: none;
-  align-items: center;
-  gap: 34px;
-  margin-left: auto;
-  color: hsl(var(--foreground));
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
-.app-header__actions {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-left: auto;
-  color: hsl(var(--foreground));
-  font-size: 0.74rem;
-  font-weight: 600;
-}
-
-.app-header__actions span {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  white-space: nowrap;
-}
-
-.app-header__actions svg {
-  width: 22px;
-  height: 22px;
-  color: hsl(var(--primary));
-}
-
-.app-header__login {
-  margin-left: 10px;
-}
-
-@media (max-width: 1180px) {
-  .app-header__actions {
-    display: none;
-  }
-}
-
-@media (max-width: 760px) {
-  .app-header__inner {
-    flex-wrap: wrap;
-    width: min(100% - 28px, 720px);
-    gap: 10px;
-    padding: 10px 0;
-  }
-
-  .app-header__search {
-    order: 5;
-    flex: 1 1 100%;
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  .app-header__login {
-    margin-left: auto;
-  }
-}
-
-@media (max-width: 420px) {
-  .app-header__inner {
-    width: min(100% - 20px, 420px);
-    min-height: 58px;
-  }
-
-  .app-header__menu {
-    width: 34px;
-    height: 34px;
-  }
-
-  .app-header__login {
-    height: 34px;
-    padding-inline: 12px;
-    font-size: 0.72rem;
-  }
-}
-
-@media (min-width: 900px) {
-  .app-header--simple .app-header__nav {
-    display: flex;
-  }
-}
-</style>

@@ -1,165 +1,69 @@
 <script setup lang="ts">
-import { Captions, Expand, ListVideo, Settings, SkipForward, Volume2 } from '@lucide/vue'
-import { Button } from '@/components/ui/button'
 import type { AnimeDetail } from '@/types/anime'
+import { formatDuration } from '@/utils/anime'
 
-defineProps<{
+const props = defineProps<{
   media: AnimeDetail
   selected: number
 }>()
+
+const nextEpisode = computed(() => {
+  const count = props.media.badges.episodes || props.selected + 1
+
+  return Math.min(props.selected + 1, count)
+})
 </script>
 
 <template>
-  <section class="watch-shell">
-    <div class="watch-shell__player">
-      <div class="watch-shell__screen">
-        <p>Playback placeholder</p>
-        <span>No anime playback API is connected yet.</span>
-      </div>
-      <div class="watch-shell__controls">
-        <span>▶</span>
-        <ClientOnly><Volume2 /></ClientOnly>
-        <b>00:00 / {{ media.badges.duration || 24 }}:00</b>
-        <i />
-        <ClientOnly><ListVideo /></ClientOnly>
-        <ClientOnly><Captions /></ClientOnly>
-        <ClientOnly><Settings /></ClientOnly>
-        <ClientOnly><Expand /></ClientOnly>
-      </div>
-      <div class="watch-shell__below">
-        <div class="watch-shell__now">
-          <strong>Now Watching:</strong>
-          <span>{{ media.displayTitle }} Episode {{ selected }}</span>
-          <small>If playback is added later, server selection belongs here.</small>
+  <section class="min-w-0">
+    <div class="catalog-surface overflow-hidden rounded-md">
+      <div class="relative grid aspect-video place-content-center overflow-hidden bg-black text-center text-white">
+        <img
+          v-if="media.bannerImage"
+          class="absolute inset-0 h-full w-full object-cover opacity-25 blur-sm"
+          :src="media.bannerImage"
+          :alt="media.displayTitle"
+        >
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.78)_70%)]" />
+        <div class="relative mx-auto grid max-w-sm gap-2 px-5">
+          <UIcon name="i-lucide-info" class="mx-auto size-14 text-primary" />
+          <p class="text-xl font-black leading-tight text-white">Episode {{ selected }}</p>
+          <span class="text-sm text-default">Episode metadata view. Streaming is not available in this AniList-only catalog.</span>
         </div>
-        <div class="watch-shell__dub">
-          <span>SUB <b>Sub {{ selected }}</b></span>
-          <span>DUB <b>Unavailable</b></span>
-        </div>
-        <Button as-child>
-          <NuxtLink :to="`/watch/${media.slug}?ep=${selected + 1}`">
-            Next Episode
-            <ClientOnly><SkipForward data-icon="inline-end" /></ClientOnly>
-          </NuxtLink>
-        </Button>
       </div>
+    </div>
+
+    <div class="catalog-surface mt-5 grid grid-cols-3 gap-3 rounded-md p-4 text-center max-[620px]:grid-cols-1">
+      <div>
+        <strong class="block text-xs font-semibold text-muted">Episode</strong>
+        <span class="mt-1 block text-sm font-bold text-default">{{ selected }} of {{ media.badges.episodes || 'unknown' }}</span>
+      </div>
+      <div>
+        <strong class="block text-xs font-semibold text-muted">Duration</strong>
+        <span class="mt-1 block text-sm font-bold text-default">{{ formatDuration(media.badges.duration) }}</span>
+      </div>
+      <div>
+        <strong class="block text-xs font-semibold text-muted">Status</strong>
+        <span class="mt-1 block text-sm font-bold text-default">{{ media.badges.status ? media.badges.status.replaceAll('_', ' ') : 'Unknown' }}</span>
+      </div>
+    </div>
+
+    <div class="catalog-surface mt-5 rounded-md p-4 text-center text-sm text-default">
+      <p>{{ nextEpisode !== selected ? 'Continue to the next listed catalog episode.' : 'You are viewing the latest listed episode for this title.' }}</p>
+      <p class="mt-1 text-xs text-muted">
+        Duration: {{ formatDuration(media.badges.duration) }}
+      </p>
+      <UButton
+        v-if="nextEpisode !== selected"
+        :to="`/watch/${media.slug}?ep=${nextEpisode}`"
+        size="xs"
+        color="neutral"
+        variant="soft"
+        trailing-icon="i-lucide-skip-forward"
+        class="mt-3"
+      >
+        Next Episode
+      </UButton>
     </div>
   </section>
 </template>
-
-<style scoped>
-.watch-shell {
-  min-width: 0;
-  flex: 1;
-}
-
-.watch-shell__player {
-  background: hsl(216 38% 10%);
-}
-
-.watch-shell__screen {
-  display: grid;
-  place-content: center;
-  aspect-ratio: 16 / 9;
-  background:
-    linear-gradient(hsl(206 74% 86% / 0.8), hsl(0 0% 96% / 0.86)),
-    hsl(var(--card));
-  color: hsl(220 10% 22%);
-  text-align: center;
-}
-
-.watch-shell__screen p {
-  display: inline;
-  margin: 0 auto 8px;
-  padding: 4px 8px;
-  background: hsl(0 0% 0% / 0.45);
-  color: white;
-  font-size: 1.6rem;
-  font-weight: 700;
-}
-
-.watch-shell__screen span {
-  display: block;
-  padding: 4px 8px;
-  background: hsl(0 0% 0% / 0.38);
-  color: white;
-}
-
-.watch-shell__controls {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  height: 54px;
-  padding: 0 18px;
-  border-top: 4px solid hsl(var(--primary));
-  background: black;
-  color: white;
-}
-
-.watch-shell__controls svg {
-  width: 20px;
-}
-
-.watch-shell__controls i {
-  flex: 1;
-}
-
-.watch-shell__below {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 16px 20px;
-}
-
-.watch-shell__now {
-  max-width: 250px;
-  padding: 12px;
-  border-radius: 4px;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  text-align: center;
-}
-
-.watch-shell__now strong,
-.watch-shell__now span,
-.watch-shell__now small {
-  display: block;
-}
-
-.watch-shell__now small {
-  margin-top: 8px;
-  font-size: 0.7rem;
-}
-
-.watch-shell__dub {
-  display: grid;
-  gap: 10px;
-  margin-right: auto;
-}
-
-.watch-shell__dub span {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  color: hsl(var(--foreground));
-  font-weight: 800;
-}
-
-.watch-shell__dub b {
-  padding: 7px 14px;
-  border-radius: 4px;
-  background: hsl(var(--secondary));
-  font-size: 0.75rem;
-}
-
-@media (max-width: 700px) {
-  .watch-shell__below {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .watch-shell__now {
-    max-width: none;
-  }
-}
-</style>

@@ -9,97 +9,26 @@ withDefaults(defineProps<{
 }>(), {
   compact: false
 })
+
+const viewTransitionSource = useId()
+const { markAnimeViewTransition, sourceViewTransitionStyle } = useAnimeViewTransition()
 </script>
 
 <template>
-  <article class="anime-card" :class="{ 'anime-card--compact': compact }">
-    <NuxtLink :to="detailPath(media)" class="anime-card__poster" :aria-label="media.displayTitle">
-      <img :src="media.coverImage" :alt="media.displayTitle" loading="lazy">
-      <div class="anime-card__shade" />
-      <MetaBadges class="anime-card__badges" :media="media" />
-    </NuxtLink>
-    <NuxtLink :to="detailPath(media)" class="anime-card__title">
+  <article class="catalog-motion-card min-w-0">
+    <ULink raw :to="detailPath(media)" class="group relative block aspect-[5/7] overflow-hidden bg-white/10" :aria-label="media.displayTitle" @pointerdown="markAnimeViewTransition(media, viewTransitionSource)" @click="markAnimeViewTransition(media, viewTransitionSource)">
+      <img class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" :style="sourceViewTransitionStyle('cover', media.id, viewTransitionSource)" :src="media.coverImage" :alt="media.displayTitle" loading="lazy">
+      <div class="absolute inset-x-0 bottom-0 h-3/5 bg-[linear-gradient(0deg,#201f31_0%,rgba(32,31,49,0)_58%)]" />
+      <div class="absolute inset-0 bg-black/0 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
+        <UIcon name="i-lucide-play" class="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 text-white" />
+      </div>
+      <MetaBadges class="absolute bottom-2 left-2 max-[520px]:bottom-1.5 max-[520px]:left-1.5" :style="sourceViewTransitionStyle('meta', media.id, viewTransitionSource)" :media="media" />
+    </ULink>
+    <ULink raw :to="detailPath(media)" class="mt-2 line-clamp-1 block text-base font-medium leading-[1.3] text-white hover:text-[#ffbade] max-[520px]:text-[13px]" :class="{ 'text-sm': compact }" :style="sourceViewTransitionStyle('title', media.id, viewTransitionSource)" @pointerdown="markAnimeViewTransition(media, viewTransitionSource)" @click="markAnimeViewTransition(media, viewTransitionSource)">
       {{ media.displayTitle }}
-    </NuxtLink>
-    <p class="anime-card__meta">
-      {{ media.badges.format ? media.badges.format.replaceAll('_', ' ') : 'Unknown' }} · {{ formatDuration(media.badges.duration) }}
+    </ULink>
+    <p class="mt-1 line-clamp-1 text-sm font-normal text-[#aaa] max-[520px]:text-xs">
+      {{ media.badges.format ? media.badges.format.replaceAll('_', ' ') : 'Unknown' }} / {{ formatDuration(media.badges.duration) }}
     </p>
   </article>
 </template>
-
-<style scoped>
-.anime-card {
-  min-width: 0;
-}
-
-.anime-card__poster {
-  position: relative;
-  display: block;
-  overflow: hidden;
-  aspect-ratio: 2 / 3;
-  border-radius: 5px;
-  background: hsl(var(--card));
-}
-
-.anime-card__poster img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 180ms ease;
-}
-
-.anime-card__poster:hover img {
-  transform: scale(1.04);
-}
-
-.anime-card__shade {
-  position: absolute;
-  inset: auto 0 0;
-  height: 42%;
-  background: linear-gradient(to top, hsl(var(--background) / 0.94), transparent);
-}
-
-.anime-card__badges {
-  position: absolute;
-  left: 8px;
-  bottom: 8px;
-}
-
-.anime-card__title {
-  display: -webkit-box;
-  margin-top: 10px;
-  color: hsl(var(--foreground));
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.25;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.anime-card__meta {
-  margin-top: 4px;
-  color: hsl(var(--muted-foreground));
-  font-size: 0.8rem;
-}
-
-.anime-card--compact .anime-card__title {
-  font-size: 0.82rem;
-}
-
-@media (max-width: 520px) {
-  .anime-card__badges {
-    left: 6px;
-    bottom: 6px;
-  }
-
-  .anime-card__title {
-    margin-top: 8px;
-    font-size: 0.84rem;
-  }
-
-  .anime-card__meta {
-    font-size: 0.72rem;
-  }
-}
-</style>

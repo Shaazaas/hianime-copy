@@ -1,411 +1,145 @@
 <script setup lang="ts">
-import { ChevronRight } from '@lucide/vue'
-import type { HomeCatalog } from '@/types/anime'
-import AnimeCard from '@/components/catalog/AnimeCard.vue'
 import AppFooter from '@/components/catalog/AppFooter.vue'
-import AppHeader from '@/components/catalog/AppHeader.vue'
-import HomeHero from '@/components/catalog/HomeHero.vue'
-import ListLane from '@/components/catalog/ListLane.vue'
-import RankingList from '@/components/catalog/RankingList.vue'
-import SectionHeader from '@/components/catalog/SectionHeader.vue'
-import ShareStrip from '@/components/catalog/ShareStrip.vue'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import SearchSuggest from '@/components/catalog/SearchSuggest.vue'
 
-const { data } = await useFetch<HomeCatalog>('/api/anilist/home', {
-  default: () => ({
-    spotlight: [],
-    trending: [],
-    topAiring: [],
-    popular: [],
-    favourites: [],
-    completed: [],
-    recommended: [],
-    top: [],
-    schedule: []
-  })
-})
+const topSearches = [
+  'My Hero Academia Final Season',
+  'Demon Slayer: Kimetsu no Yaiba Infinity Castle',
+  'My Gift Lvl 9999 Unlimited Gacha: Backstabbed in a Backwater Dungeon, I\'m Out for Revenge!',
+  'One Piece',
+  'May I Ask for One Final Thing?',
+  'Kaiju No. 8 Season 2',
+  'Demon Slayer: Kimetsu no Yaiba',
+  'The Fragrant Flower Blooms with Dignity',
+  'Chainsaw Man the Movie: Reze Arc',
+  'Secrets of the Silent Witch'
+]
+
+const nav = [
+  { label: 'Home', to: '/home' },
+  { label: 'Movies', to: '/filter?format=MOVIE' },
+  { label: 'TV Series', to: '/filter?format=TV' },
+  { label: 'Most Popular', to: '/filter?sort=popular' },
+  { label: 'Top Airing', to: '/filter?status=airing' }
+]
 
 useSeoMeta({
-  title: 'Home'
+  title: 'Watch Anime Online, Free Anime Streaming Online',
+  description: 'HiAnime is a free anime discovery website where you can find subbed and dubbed anime with daily updates.'
 })
-
-const latestEpisodes = computed(() => data.value.recommended.slice(0, 12))
-const newOnHianime = computed(() => [
-  ...data.value.trending,
-  ...data.value.popular,
-  ...data.value.favourites
-].slice(0, 12))
-const genreList = computed(() => {
-  const genres = new Set<string>()
-  const sources = [
-    ...data.value.trending,
-    ...data.value.recommended,
-    ...data.value.popular,
-    ...data.value.favourites
-  ]
-
-  for (const item of sources) {
-    for (const genre of item.genres) genres.add(genre)
-  }
-
-  return [...genres].slice(0, 24)
-})
-
-const scheduleDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 </script>
 
 <template>
-  <div>
-    <AppHeader />
-    <main class="home-page">
-      <HomeHero :items="data.spotlight" />
+  <div class="min-h-[100dvh] overflow-x-clip bg-[#201f31] text-white">
+    <ULink raw to="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-30 focus:rounded-md focus:bg-[#ffbade] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[#111]">
+      Skip to content
+    </ULink>
 
-      <section class="home-page__trending">
-        <SectionHeader title="Trending" to="/filter?sort=trending" />
-        <div class="home-page__rail">
-          <AnimeCard v-for="item in data.trending.slice(0, 10)" :key="item.id" :media="item" compact />
+    <header class="mx-auto mt-[60px] w-full max-w-[1200px] px-4 max-[1199px]:mt-2.5">
+      <details class="group relative hidden max-[780px]:block">
+        <summary class="my-[13px] inline-flex h-11 cursor-pointer list-none items-center gap-2 rounded-[3px] px-3 text-sm font-medium text-white marker:hidden">
+          <UIcon name="i-lucide-menu" class="size-4" />
+          Menu
+        </summary>
+        <nav class="absolute left-0 right-0 top-[60px] z-20 rounded-[25px] bg-[#0b0b0b]/95 px-4 py-2 text-center" aria-label="Main navigation">
+          <ULink v-for="item in nav" :key="item.label" raw :to="item.to" class="block px-5 py-2.5 text-base font-medium text-white hover:text-[#ffbade]">
+            {{ item.label }}
+          </ULink>
+        </nav>
+      </details>
+
+      <nav class="mb-2.5 flex h-[60px] items-center justify-center gap-10 max-[780px]:hidden" aria-label="Main navigation">
+        <ULink v-for="item in nav" :key="item.label" raw :to="item.to" class="text-sm font-medium tracking-[1px] text-white hover:text-[#ffbade]">
+          {{ item.label }}
+        </ULink>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <section class="relative z-[3] mb-10">
+        <div class="mx-auto w-full max-w-[1200px] px-4">
+          <div class="relative mx-[-80px] overflow-hidden rounded-[40px] bg-white/[0.05] p-20 max-[1365px]:mx-0 max-[1199px]:p-[60px] max-[520px]:mx-[-15px] max-[520px]:rounded-none max-[520px]:p-[30px]">
+            <div class="absolute inset-y-0 right-0 w-[650px] overflow-hidden rounded-r-[40px] max-[780px]:hidden">
+              <img
+                src="/images/hianime-start-anw.webp"
+                alt=""
+                width="650"
+                height="471"
+                fetchpriority="high"
+                class="absolute inset-0 h-full w-full object-cover opacity-50"
+              >
+              <div class="absolute inset-y-0 left-0 z-[3] w-[400px] bg-[linear-gradient(90deg,#2b2a3c_0%,rgba(43,42,60,0)_100%)]" />
+            </div>
+
+            <div class="relative z-[4] max-w-[500px]">
+              <ULink raw to="/home" class="mb-[30px] inline-block max-[520px]:block max-[520px]:text-center" aria-label="HiAnime home">
+                <img src="/images/hianime-archive-logo.png" alt="HiAnime" width="823" height="200" class="h-10 w-auto max-[520px]:mx-auto">
+              </ULink>
+
+              <SearchSuggest mode="start" />
+
+              <div class="mt-[30px] text-sm leading-[1.6] text-white max-[520px]:text-xs">
+                <span class="mr-2 font-medium text-white">Top search:</span>
+                <ULink
+                  v-for="(item, index) in topSearches"
+                  :key="item"
+                  raw
+                  :to="`/filter?search=${encodeURIComponent(item)}`"
+                  class="mr-1 inline-block max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap align-bottom text-white hover:text-[#ffbade]"
+                >
+                  {{ item }}{{ index === topSearches.length - 1 ? ', ...' : ',' }}
+                </ULink>
+              </div>
+
+              <div class="mt-10 max-[780px]:mt-[30px]">
+                <UButton
+                  to="/home"
+                  size="xl"
+                  trailing-icon="i-lucide-arrow-right-circle"
+                  class="h-[60px] w-[260px] justify-center rounded-xl bg-[#ffbade] px-5 text-[22px] font-semibold text-[#111] ring-0 hover:bg-[#ffbade] active:scale-[0.98] max-[520px]:w-full max-[520px]:text-base"
+                >
+                  Watch anime
+                </UButton>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <ShareStrip />
-
-      <div class="home-page__mini">
-        <ListLane title="Top Airing" :items="data.topAiring" />
-        <ListLane title="Most Popular" :items="data.popular" />
-        <ListLane title="Most Favourite" :items="data.favourites" />
-        <ListLane title="Latest Completed" :items="data.completed" />
-      </div>
-
-      <div class="home-page__columns">
-        <div class="home-page__main">
-          <section>
-            <SectionHeader title="Latest Episodes" to="/filter?status=airing" />
-            <div class="home-page__grid">
-              <AnimeCard v-for="item in latestEpisodes" :key="item.id" :media="item" />
-            </div>
-          </section>
-
-          <section>
-            <SectionHeader title="New On HiAnime" to="/filter?sort=popular" />
-            <div class="home-page__grid">
-              <AnimeCard v-for="item in newOnHianime" :key="item.id" :media="item" />
-            </div>
-          </section>
-
-          <section>
-            <SectionHeader title="Estimated Schedule" />
-            <div class="home-page__schedule-head">
-              <ToggleGroup type="single" default-value="Mon" class="home-page__days">
-                <ToggleGroupItem
-                  v-for="day in scheduleDays"
-                  :key="day"
-                  :value="day"
-                  size="sm"
-                >
-                  {{ day }}
-                </ToggleGroupItem>
-              </ToggleGroup>
-              <Button as-child size="sm" variant="secondary">
-                <NuxtLink to="/filter?status=airing">
-                  Show all
-                  <ClientOnly><ChevronRight data-icon="inline-end" /></ClientOnly>
-                </NuxtLink>
-              </Button>
-            </div>
-            <div class="home-page__schedule">
-              <article v-for="(item, index) in data.schedule.slice(0, 8)" :key="item.id">
-                <time>{{ `${20 + index}:00` }}</time>
-                <NuxtLink :to="`/anime/${item.slug}`">{{ item.displayTitle }}</NuxtLink>
-                <span>Episode {{ item.badges.episodes || '?' }}</span>
-              </article>
-            </div>
-          </section>
+      <section class="mx-auto w-full max-w-[1200px] px-4">
+        <div class="mb-[30px]">
+          <div class="text-xs">
+            <strong class="block text-sm font-semibold text-[#ffbade]">Share HiAnime</strong>
+            <p class="mb-0 text-white">to your friends</p>
+          </div>
         </div>
 
-        <div class="home-page__side">
-          <Card class="home-page__genres">
-            <CardHeader class="home-page__genres-head">
-              <CardTitle class="home-page__genres-title">Genres</CardTitle>
-            </CardHeader>
-            <CardContent class="home-page__genres-content">
-              <NuxtLink v-for="genre in genreList" :key="genre" :to="`/filter?genre=${encodeURIComponent(genre)}`">
-                <Badge variant="secondary">{{ genre }}</Badge>
-              </NuxtLink>
-            </CardContent>
-          </Card>
-          <RankingList title="Top 10" :items="data.top" />
-        </div>
-      </div>
+        <article class="max-w-[750px] pb-8 text-sm leading-[1.5] text-[#ccc]">
+          <h1 class="mb-7 text-[1.8em] font-semibold leading-[1.4] text-white max-[780px]:mb-5 max-[780px]:text-xl">
+            HiAnime.to - The best site to watch anime online for Free
+          </h1>
+          <p class="mb-4">
+            Do you know that according to Google, the monthly search volume for anime related topics is up to over 1 Billion times? Anime is famous worldwide and it is no wonder we have seen a sharp rise in the number of free anime streaming sites.
+          </p>
+          <p class="mb-4">
+            Just like free online movie streaming sites, anime watching sites are not created equally. Some are better than the rest, so we have built HiAnime to be one of the best free anime discovery sites for anime fans around the world.
+          </p>
+          <h2 class="mb-[15px] mt-8 text-[1.5em] font-semibold leading-[1.4] text-white">1/ What is HiAnime.to?</h2>
+          <p class="mb-4">
+            HiAnime is a free site to explore anime and find subbed or dubbed titles in high quality without registration or payment.
+          </p>
+          <h2 class="mb-[15px] mt-8 text-[1.5em] font-semibold leading-[1.4] text-white">2/ Is HiAnime.to safe?</h2>
+          <p class="mb-4">
+            This project links to AniList metadata only. No media files are stored or streamed by this app.
+          </p>
+          <h2 class="mb-[15px] mt-8 text-[1.5em] font-semibold leading-[1.4] text-white">3/ What makes HiAnime easy to use?</h2>
+          <p class="mb-4">
+            You can search for a title directly, browse popular anime, filter by format, or open the home catalog for daily discovery.
+          </p>
+        </article>
+      </section>
     </main>
+
     <AppFooter />
   </div>
 </template>
-
-<style scoped>
-.home-page {
-  width: min(1430px, calc(100% - 44px));
-  margin: 28px auto 0;
-}
-
-.home-page__trending {
-  margin-top: 34px;
-}
-
-.home-page__rail {
-  display: grid;
-  grid-template-columns: repeat(10, minmax(112px, 1fr));
-  gap: 16px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  scroll-snap-type: x proximity;
-}
-
-.home-page__rail :deep(.anime-card) {
-  min-width: 124px;
-  scroll-snap-align: start;
-}
-
-.home-page__mini {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 28px;
-  margin-top: 34px;
-}
-
-.home-page__columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 270px;
-  gap: 26px;
-  margin-top: 36px;
-}
-
-.home-page__main {
-  display: grid;
-  gap: 38px;
-}
-
-.home-page__grid {
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.home-page__side {
-  display: grid;
-  align-content: start;
-  gap: 22px;
-}
-
-.home-page__genres {
-  border: 0;
-  border-radius: 0;
-  background: hsl(var(--card));
-}
-
-.home-page__genres-head {
-  padding-bottom: 10px;
-}
-
-.home-page__genres-title {
-  color: hsl(var(--primary));
-  font-size: 1rem;
-}
-
-.home-page__genres-content {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.home-page__schedule {
-  display: grid;
-  gap: 2px;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.home-page__schedule article {
-  display: grid;
-  grid-template-columns: 72px 1fr auto;
-  gap: 14px;
-  align-items: center;
-  min-height: 42px;
-  padding: 0 14px;
-  background: hsl(var(--card));
-}
-
-.home-page__schedule-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 14px;
-}
-
-.home-page__days {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(58px, 1fr));
-  gap: 8px;
-  width: min(100%, 560px);
-}
-
-.home-page__days :deep(button) {
-  border-radius: 4px;
-  background: hsl(var(--card));
-  font-weight: 800;
-}
-
-.home-page__schedule time,
-.home-page__schedule span {
-  color: hsl(var(--muted-foreground));
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.home-page__schedule a {
-  min-width: 0;
-  color: hsl(var(--foreground));
-  font-size: 0.86rem;
-  font-weight: 700;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@media (max-width: 1180px) {
-  .home-page__columns {
-    grid-template-columns: 1fr;
-  }
-
-  .home-page__side {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .home-page__mini {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .home-page__grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
-  .home-page {
-    width: min(100% - 32px, 860px);
-  }
-
-  .home-page__grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .home-page__side {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
-  }
-}
-
-@media (max-width: 760px) {
-  .home-page {
-    width: min(100% - 24px, 720px);
-    margin-top: 18px;
-  }
-
-  .home-page__trending {
-    margin-top: 24px;
-  }
-
-  .home-page__rail {
-    grid-template-columns: repeat(10, minmax(116px, 42vw));
-    gap: 12px;
-    margin-inline: -12px;
-    padding-inline: 12px;
-  }
-
-  .home-page__rail :deep(.anime-card) {
-    min-width: 116px;
-  }
-
-  .home-page__mini {
-    grid-template-columns: 1fr;
-    gap: 24px;
-    margin-top: 24px;
-  }
-
-  .home-page__columns {
-    gap: 30px;
-    margin-top: 30px;
-  }
-
-  .home-page__main {
-    gap: 32px;
-  }
-
-  .home-page__side {
-    grid-template-columns: 1fr;
-  }
-
-  .home-page__genres {
-    order: 2;
-  }
-}
-
-@media (max-width: 680px) {
-  .home-page {
-    width: min(100% - 22px, 640px);
-  }
-
-  .home-page__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-  }
-
-  .home-page__schedule-head {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .home-page__days {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    width: 100%;
-  }
-
-  .home-page__schedule article {
-    grid-template-columns: 58px minmax(0, 1fr);
-    gap: 8px;
-    min-height: 54px;
-    padding: 8px 10px;
-  }
-
-  .home-page__schedule span {
-    grid-column: 2;
-  }
-}
-
-@media (max-width: 420px) {
-  .home-page {
-    width: min(100% - 18px, 420px);
-  }
-
-  .home-page__grid {
-    gap: 12px;
-  }
-
-  .home-page__genres-head,
-  .home-page__genres-content {
-    padding-inline: 16px;
-  }
-
-  .home-page__genres-content {
-    gap: 6px;
-  }
-
-  .home-page__schedule a {
-    white-space: normal;
-  }
-}
-</style>

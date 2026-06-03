@@ -7,149 +7,37 @@ defineProps<{
   title: string
   items: AnimeListItem[]
 }>()
+
+const viewTransitionSource = useId()
+const { markAnimeViewTransition, sourceViewTransitionStyle } = useAnimeViewTransition()
+
+const viewTransitionKey = (item: AnimeListItem, index: number) => `${viewTransitionSource}-${item.id}-${index}`
 </script>
 
 <template>
-  <aside class="ranking-list">
-    <div class="ranking-list__head">
-      <h2>{{ title }}</h2>
-      <div class="ranking-list__tabs">
-        <span>Today</span>
-        <span>Week</span>
-        <span>Month</span>
-      </div>
+  <UCard variant="subtle" class="catalog-surface" :ui="{ body: 'p-5 sm:p-6' }">
+    <div class="mb-4 flex items-center justify-between gap-3">
+      <h2 class="text-3xl font-black text-primary max-[520px]:text-2xl">{{ title }}</h2>
+      <UBadge color="neutral" variant="soft" class="rounded-md">{{ items.length }}</UBadge>
     </div>
 
-    <NuxtLink
-      v-for="(item, index) in items"
-      :key="item.id"
-      :to="detailPath(item)"
-      class="ranking-list__item"
-    >
-      <span class="ranking-list__rank">{{ String(index + 1).padStart(2, '0') }}</span>
-      <img :src="item.coverImage" :alt="item.displayTitle" loading="lazy">
-      <span class="ranking-list__copy">
-        <strong>{{ item.displayTitle }}</strong>
-        <MetaBadges :media="item" />
-      </span>
-    </NuxtLink>
-  </aside>
+    <UPageList divide>
+      <ULink
+        v-for="(item, index) in items"
+        :key="item.id"
+        raw
+        :to="detailPath(item)"
+        class="catalog-motion-card grid grid-cols-[32px_54px_minmax(0,1fr)] items-center gap-3 py-3.5 max-[520px]:grid-cols-[28px_48px_minmax(0,1fr)] max-[520px]:gap-2.5 max-[520px]:py-3"
+        @pointerdown="markAnimeViewTransition(item, viewTransitionKey(item, index))"
+        @click="markAnimeViewTransition(item, viewTransitionKey(item, index))"
+      >
+        <span class="text-xl font-black text-primary max-[520px]:text-base">{{ String(index + 1).padStart(2, '0') }}</span>
+        <img class="h-[72px] w-[54px] rounded object-cover max-[520px]:h-16 max-[520px]:w-12" :style="sourceViewTransitionStyle('cover', item.id, viewTransitionKey(item, index))" :src="item.coverImage" :alt="item.displayTitle" loading="lazy">
+        <span class="flex min-w-0 flex-col gap-2">
+          <strong class="text-sm leading-tight text-default max-[520px]:text-xs" :style="sourceViewTransitionStyle('title', item.id, viewTransitionKey(item, index))">{{ item.displayTitle }}</strong>
+          <MetaBadges :style="sourceViewTransitionStyle('meta', item.id, viewTransitionKey(item, index))" :media="item" />
+        </span>
+      </ULink>
+    </UPageList>
+  </UCard>
 </template>
-
-<style scoped>
-.ranking-list {
-  padding: 18px;
-  background: hsl(var(--card));
-}
-
-.ranking-list__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-}
-
-.ranking-list__head h2 {
-  color: hsl(var(--primary));
-  font-size: 1.45rem;
-  font-weight: 800;
-}
-
-.ranking-list__tabs {
-  display: flex;
-  overflow: hidden;
-  border-radius: 4px;
-  background: hsl(var(--secondary));
-  color: hsl(var(--muted-foreground));
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.ranking-list__tabs span {
-  padding: 7px 10px;
-}
-
-.ranking-list__tabs span:first-child {
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-}
-
-.ranking-list__item {
-  display: grid;
-  grid-template-columns: 36px 58px 1fr;
-  gap: 12px;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid hsl(var(--border));
-}
-
-.ranking-list__rank {
-  color: hsl(var(--muted-foreground));
-  font-size: 1.35rem;
-  font-weight: 800;
-}
-
-.ranking-list__item img {
-  width: 58px;
-  height: 76px;
-  border-radius: 4px;
-  object-fit: cover;
-}
-
-.ranking-list__copy {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
-
-.ranking-list__copy strong {
-  color: hsl(var(--foreground));
-  font-size: 0.86rem;
-  line-height: 1.25;
-}
-
-@media (max-width: 520px) {
-  .ranking-list {
-    padding: 14px;
-  }
-
-  .ranking-list__head {
-    align-items: flex-start;
-    gap: 10px;
-    flex-direction: column;
-  }
-
-  .ranking-list__head h2 {
-    font-size: 1.25rem;
-  }
-
-  .ranking-list__tabs {
-    width: 100%;
-  }
-
-  .ranking-list__tabs span {
-    flex: 1;
-    text-align: center;
-  }
-
-  .ranking-list__item {
-    grid-template-columns: 28px 48px minmax(0, 1fr);
-    gap: 10px;
-    padding: 10px 0;
-  }
-
-  .ranking-list__rank {
-    font-size: 1rem;
-  }
-
-  .ranking-list__item img {
-    width: 48px;
-    height: 64px;
-  }
-
-  .ranking-list__copy strong {
-    font-size: 0.8rem;
-  }
-}
-</style>

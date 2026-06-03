@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import type { AnimeCharacter } from '@/types/anime'
 import SectionHeader from './SectionHeader.vue'
 
@@ -11,71 +10,20 @@ defineProps<{
 <template>
   <section v-if="characters.length">
     <SectionHeader title="Characters & Voice Actors" />
-    <div class="character-grid">
-      <article v-for="character in characters" :key="character.id" class="character-grid__item">
-        <Avatar>
-          <AvatarImage v-if="character.image" :src="character.image" :alt="character.name" />
-          <AvatarFallback>{{ character.name.slice(0, 2) }}</AvatarFallback>
-        </Avatar>
-        <span>
-          <strong>{{ character.name }}</strong>
-          <small>{{ character.role || 'Supporting' }}</small>
+    <div class="grid grid-cols-2 gap-3 max-[980px]:grid-cols-1">
+      <article v-for="character in characters" :key="character.id" class="grid min-h-18 grid-cols-[44px_minmax(0,1fr)_minmax(0,1fr)_44px] items-center gap-2.5 bg-white/[0.04] p-2.5">
+        <UAvatar :src="character.image || undefined" :alt="character.name" size="md" class="rounded-none" />
+        <span class="min-w-0">
+          <strong class="block truncate text-xs font-semibold text-white">{{ character.name }}</strong>
+          <small class="block truncate text-white/50">{{ character.role || 'Supporting' }}</small>
         </span>
-        <span v-if="character.voiceActor" class="character-grid__actor">
-          <strong>{{ character.voiceActor.name }}</strong>
-          <small>{{ character.voiceActor.language || 'Japanese' }}</small>
+        <span v-if="character.voiceActor" class="min-w-0 text-right">
+          <strong class="block truncate text-xs font-semibold text-white">{{ character.voiceActor.name }}</strong>
+          <small class="block truncate text-white/50">{{ character.voiceActor.language || 'Japanese' }}</small>
         </span>
-        <Avatar v-if="character.voiceActor">
-          <AvatarImage v-if="character.voiceActor.image" :src="character.voiceActor.image" :alt="character.voiceActor.name" />
-          <AvatarFallback>{{ character.voiceActor.name.slice(0, 2) }}</AvatarFallback>
-        </Avatar>
+        <span v-else />
+        <UAvatar v-if="character.voiceActor" :src="character.voiceActor.image || undefined" :alt="character.voiceActor.name" size="md" class="rounded-none" />
       </article>
     </div>
   </section>
 </template>
-
-<style scoped>
-.character-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.character-grid__item {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) minmax(0, 1fr) 44px;
-  gap: 10px;
-  align-items: center;
-  min-height: 72px;
-  padding: 10px;
-  border-radius: 7px;
-  background: hsl(var(--card));
-}
-
-.character-grid__item strong,
-.character-grid__item small {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.character-grid__item strong {
-  color: hsl(var(--foreground));
-  font-size: 0.78rem;
-}
-
-.character-grid__item small {
-  color: hsl(var(--muted-foreground));
-}
-
-.character-grid__actor {
-  text-align: right;
-}
-
-@media (max-width: 980px) {
-  .character-grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
