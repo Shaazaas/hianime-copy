@@ -78,7 +78,7 @@ _Avoid_: Fake post, copied comment, community feed
 ## Flagged Ambiguities
 
 - "Recreating HiAnime" means recreating the visible catalog, detail, filter, and watch-page layouts from screenshots; it does not mean copying comments, third-party ads, stream APIs, or scraped playback behavior.
-- "Use shadcn-vue strictly" means composing existing project components without editing files under `app/components/ui`.
+- UI primitives are provided by Nuxt UI v4. Compose `U*` components and semantic Nuxt UI theme tokens instead of restoring copied shadcn-vue components.
 - AniList data should be fetched through Nuxt server API routes, not directly from Vue components.
 - AniList server API responses may use short public caching because catalog metadata is not expected to change minute-by-minute.
 - Desktop layouts should match the provided screenshots first; mobile layouts should be usable but not treated as pixel-matched until mobile references exist.

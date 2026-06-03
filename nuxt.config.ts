@@ -1,18 +1,28 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
-import tailwindcss from '@tailwindcss/vite'
-
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
-  modules: ['shadcn-nuxt'],
-  css: ['~/assets/css/tailwind.css'],
-  shadcn: {
-    prefix: '',
-    componentDir: '@/components/ui'
+  devtools: {
+    enabled: true,
+
+    timeline: {
+      enabled: true
+    }
+  },
+  experimental: {
+    viewTransition: true
   },
   vite: {
-    plugins: [
-      tailwindcss()
-    ]
+    optimizeDeps: {
+      include: ['@vueuse/core', 'gsap', 'gsap/ScrollTrigger']
+    }
+  },
+  app: {
+    viewTransition: false
+  },
+  modules: ['@nuxt/ui'],
+  css: ['~/assets/css/tailwind.css'],
+  ui: {
+    theme: {
+      colors: ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'neutral']
+    }
   }
 })
