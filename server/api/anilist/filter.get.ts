@@ -1,5 +1,11 @@
 import { fetchMediaList } from '../../utils/anilist'
 import type { FilterCatalog } from '../../../app/types/anime'
+import {
+  normalizeCatalogFormat,
+  normalizeCatalogPage,
+  normalizeCatalogSort,
+  normalizeCatalogStatus
+} from '../../../app/utils/catalogFilters'
 
 const sortMap: Record<string, string[]> = {
   default: ['POPULARITY_DESC'],
@@ -29,15 +35,15 @@ export default defineEventHandler(async (event): Promise<FilterCatalog> => {
   setHeader(event, 'Cache-Control', 'public, max-age=600, stale-while-revalidate=1800')
 
   const query = getQuery(event)
-  const page = Number.parseInt(String(query.page || '1'), 10)
+  const page = normalizeCatalogPage(query.page)
   const genre = String(query.genre || 'all')
-  const status = String(query.status || 'all')
-  const format = String(query.format || 'all')
-  const sort = String(query.sort || 'default')
+  const status = normalizeCatalogStatus(query.status)
+  const format = normalizeCatalogFormat(query.format)
+  const sort = normalizeCatalogSort(query.sort)
   const search = String(query.search || '').trim()
 
   return fetchMediaList({
-    page: Number.isFinite(page) ? page : 1,
+    page,
     perPage: 24,
     genre: genre === 'all' ? undefined : genre,
     status: statusMap[status],

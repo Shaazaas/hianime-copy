@@ -55,10 +55,8 @@ function showPreviousSpotlight() {
         <span class="inline-flex items-center gap-1"><UIcon name="i-lucide-play-circle" />{{ formatKind(hero.badges.format) }}</span>
         <span class="inline-flex items-center gap-1"><UIcon name="i-lucide-clock" />{{ formatDuration(hero.badges.duration) }}</span>
         <span v-if="hero.seasonYear" class="inline-flex items-center gap-1"><UIcon name="i-lucide-calendar" />{{ hero.seasonYear }}</span>
-        <span class="rounded bg-[#ffbade] px-1.5 text-sm font-semibold text-[#111]">HD</span>
-        <span v-if="hero.badges.episodes" class="rounded bg-[#b0e3af] px-1.5 text-sm font-semibold text-[#111]">{{ hero.badges.episodes }}</span>
-        <span v-if="hero.badges.episodes" class="rounded bg-[#b9e7ff] px-1.5 text-sm font-semibold text-[#111]">{{ hero.badges.episodes }}</span>
-        <span v-if="hero.badges.episodes" class="rounded bg-white/25 px-1.5 text-sm font-semibold text-white">{{ hero.badges.episodes }}</span>
+        <span v-if="hero.badges.averageScore" class="rounded bg-[#ffbade] px-1.5 text-sm font-semibold text-[#111]">Score {{ hero.badges.averageScore }}</span>
+        <span v-if="hero.badges.episodes" class="rounded bg-[#b0e3af] px-1.5 text-sm font-semibold text-[#111]">{{ hero.badges.episodes }} eps</span>
       </div>
 
       <p class="mb-8 line-clamp-3 max-w-[820px] text-base font-normal leading-[1.5] text-white max-[760px]:hidden">

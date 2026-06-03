@@ -8,7 +8,8 @@ const props = defineProps<{
 }>()
 
 const nextEpisode = computed(() => {
-  const count = props.media.badges.episodes || props.selected + 1
+  const count = props.media.badges.episodes
+  if (!count) return null
 
   return Math.min(props.selected + 1, count)
 })
@@ -49,12 +50,12 @@ const nextEpisode = computed(() => {
     </div>
 
     <div class="catalog-surface mt-5 rounded-md p-4 text-center text-sm text-default">
-      <p>{{ nextEpisode !== selected ? 'Continue to the next listed catalog episode.' : 'You are viewing the latest listed episode for this title.' }}</p>
+      <p>{{ nextEpisode && nextEpisode !== selected ? 'Continue to the next listed catalog episode.' : 'No later catalog episode is listed for this title.' }}</p>
       <p class="mt-1 text-xs text-muted">
         Duration: {{ formatDuration(media.badges.duration) }}
       </p>
       <UButton
-        v-if="nextEpisode !== selected"
+        v-if="nextEpisode && nextEpisode !== selected"
         :to="`/watch/${media.slug}?ep=${nextEpisode}`"
         size="xs"
         color="neutral"

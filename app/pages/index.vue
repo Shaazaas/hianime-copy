@@ -24,8 +24,8 @@ const nav = [
 ]
 
 useSeoMeta({
-  title: 'Watch Anime Online, Free Anime Streaming Online',
-  description: 'HiAnime is a free anime discovery website where you can find subbed and dubbed anime with daily updates.'
+  title: 'Explore Anime Online',
+  description: 'HiAnime is an anime discovery website where you can browse AniList-backed catalog metadata with daily updates.'
 })
 </script>
 
@@ -87,7 +87,7 @@ useSeoMeta({
                   :to="`/filter?search=${encodeURIComponent(item)}`"
                   class="mr-1 inline-block max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap align-bottom text-white hover:text-[#ffbade]"
                 >
-                  {{ item }}{{ index === topSearches.length - 1 ? ', ...' : ',' }}
+                  {{ item }}{{ index === topSearches.length - 1 ? ', …' : ',' }}
                 </ULink>
               </div>
 
@@ -116,19 +116,19 @@ useSeoMeta({
 
         <article class="max-w-[750px] pb-8 text-sm leading-[1.5] text-[#ccc]">
           <h1 class="mb-7 text-[1.8em] font-semibold leading-[1.4] text-white max-[780px]:mb-5 max-[780px]:text-xl">
-            HiAnime.to - The best site to watch anime online for Free
+            HiAnime - explore anime online
           </h1>
           <p class="mb-4">
-            Do you know that according to Google, the monthly search volume for anime related topics is up to over 1 Billion times? Anime is famous worldwide and it is no wonder we have seen a sharp rise in the number of free anime streaming sites.
+            Anime is famous worldwide, and fans need fast ways to search titles, compare metadata, and discover what is trending.
           </p>
           <p class="mb-4">
-            Just like free online movie streaming sites, anime watching sites are not created equally. Some are better than the rest, so we have built HiAnime to be one of the best free anime discovery sites for anime fans around the world.
+            HiAnime focuses on compact anime discovery using AniList metadata, quick filtering, and clear detail pages.
           </p>
-          <h2 class="mb-[15px] mt-8 text-[1.5em] font-semibold leading-[1.4] text-white">1/ What is HiAnime.to?</h2>
+          <h2 class="mb-[15px] mt-8 text-[1.5em] font-semibold leading-[1.4] text-white">1/ What is HiAnime?</h2>
           <p class="mb-4">
-            HiAnime is a free site to explore anime and find subbed or dubbed titles in high quality without registration or payment.
+            HiAnime is a catalog experience for exploring anime titles, formats, scores, schedules, and related metadata.
           </p>
-          <h2 class="mb-[15px] mt-8 text-[1.5em] font-semibold leading-[1.4] text-white">2/ Is HiAnime.to safe?</h2>
+          <h2 class="mb-[15px] mt-8 text-[1.5em] font-semibold leading-[1.4] text-white">2/ Is HiAnime a streaming service?</h2>
           <p class="mb-4">
             This project links to AniList metadata only. No media files are stored or streamed by this app.
           </p>

@@ -40,7 +40,23 @@ export default defineEventHandler(async (event) => {
     }
   `
 
-  const data = await anilistRequest<{ Media: Parameters<typeof normalizeDetail>[0] }>(query, { id })
+  let data: { Media: Parameters<typeof normalizeDetail>[0] | null }
+
+  try {
+    data = await anilistRequest<{ Media: Parameters<typeof normalizeDetail>[0] | null }>(query, { id })
+  } catch (error) {
+    const status = typeof error === 'object' && error && 'statusCode' in error ? Number(error.statusCode) : null
+    if (status === 404) {
+      throw createError({ statusCode: 404, statusMessage: 'Anime not found' })
+    }
+
+    throw error
+  }
+
+  if (!data.Media) {
+    throw createError({ statusCode: 404, statusMessage: 'Anime not found' })
+  }
+
   const detail = normalizeDetail(data.Media)
 
   if (!detail.recommendations.length) {

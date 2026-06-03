@@ -4,8 +4,8 @@ import SearchSuggest from './SearchSuggest.vue'
 
 const nav = [
   { label: 'Home', to: '/home' },
-  { label: 'Subbed Anime', to: '/filter?format=TV' },
-  { label: 'Dubbed Anime', to: '/filter?sort=popular' },
+  { label: 'TV Anime', to: '/filter?format=TV' },
+  { label: 'Popular Anime', to: '/filter?sort=popular' },
   { label: 'Most Popular', to: '/filter?sort=popular' },
   { label: 'Movies', to: '/filter?format=MOVIE' },
   { label: 'TV Series', to: '/filter?format=TV' },
@@ -15,11 +15,11 @@ const nav = [
 ]
 
 const quickLinks = [
-  { label: 'Watch2gether', icon: 'i-lucide-radio-tower', to: '/filter?sort=trending' },
+  { label: 'Spotlight', icon: 'i-lucide-radio-tower', to: '/filter?sort=trending' },
   { label: 'Random', icon: 'i-lucide-shuffle', to: '/filter?sort=popular' },
   { label: 'Anime Name', icon: 'i-lucide-languages', to: '/filter' },
-  { label: 'News', icon: 'i-lucide-rss', to: '/filter?status=airing' },
-  { label: 'Community', icon: 'i-lucide-messages-square', to: '/filter?format=TV' }
+  { label: 'Airing', icon: 'i-lucide-rss', to: '/filter?status=airing' },
+  { label: 'Genres', icon: 'i-lucide-tags', to: '/filter?format=TV' }
 ]
 
 const socialLinks = [
@@ -28,20 +28,54 @@ const socialLinks = [
   { label: 'Reddit', icon: 'i-lucide-badge-alert', class: 'bg-[#ff3c1f]' },
   { label: 'Twitter', icon: 'i-lucide-twitter', class: 'bg-[#1d9bf0]' }
 ]
+
+const route = useRoute()
+const menuOpen = ref(false)
+
+function closeMenu() {
+  menuOpen.value = false
+}
+
+function toggleMenu() {
+  menuOpen.value = !menuOpen.value
+}
+
+function onKeydown(event: KeyboardEvent) {
+  if (event.key === 'Escape') closeMenu()
+}
+
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
+watch(() => route.fullPath, closeMenu)
 </script>
 
 <template>
   <header class="fixed inset-x-0 top-0 z-[102] h-[70px] bg-[#201f31]/95 text-white backdrop-blur-[10px] max-[760px]:h-[50px]">
     <div class="relative mx-auto flex h-full w-full max-w-[1800px] items-center px-[15px] max-[760px]:px-0">
-      <details class="group contents">
-        <summary aria-label="Open navigation" class="absolute left-1.5 top-[15px] z-[4] flex size-10 cursor-pointer list-none items-center justify-center rounded-[3px] text-white marker:hidden max-[760px]:top-[5px]">
+      <button
+        type="button"
+        aria-label="Open navigation"
+        :aria-expanded="menuOpen"
+        aria-controls="catalog-navigation-drawer"
+        class="absolute left-1.5 top-[15px] z-[4] flex size-10 items-center justify-center rounded-[3px] text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary max-[760px]:top-[5px]"
+        @click="toggleMenu"
+      >
           <UIcon name="i-lucide-menu" class="size-7" />
-        </summary>
+      </button>
 
-        <div class="fixed inset-0 z-[101] hidden bg-black/45 group-open:block" />
-        <aside class="fixed bottom-0 left-0 top-0 z-[102] w-[320px] max-w-[86vw] -translate-x-full overflow-y-auto bg-[#2d2b44] px-5 py-5 text-white shadow-[20px_0_60px_rgba(0,0,0,.35)] transition-transform duration-300 group-open:translate-x-0">
-          <div class="mb-5">
-            <span class="inline-flex rounded-full bg-[#3a3951] px-4 py-2 text-sm font-medium text-white">Close menu</span>
+      <div v-if="menuOpen" class="fixed inset-0 z-[101] bg-black/45" aria-hidden="true" @click="closeMenu" />
+      <aside
+        id="catalog-navigation-drawer"
+        class="fixed bottom-0 left-0 top-0 z-[102] w-[320px] max-w-[86vw] overflow-y-auto bg-[#2d2b44] px-5 py-5 text-white shadow-[20px_0_60px_rgba(0,0,0,.35)] transition-transform duration-300"
+        :class="menuOpen ? 'translate-x-0' : '-translate-x-full'"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Catalog navigation"
+      >
+          <div class="mb-5 flex justify-end">
+            <button type="button" class="inline-flex rounded-full bg-[#3a3951] px-4 py-2 text-sm font-medium text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" @click="closeMenu">
+              Close menu
+            </button>
           </div>
           <div class="mb-5 grid grid-cols-4 gap-2">
             <ULink v-for="item in quickLinks.slice(0, 4)" :key="item.label" raw :to="item.to" class="rounded-xl bg-white/10 p-3 text-center text-xs font-medium hover:text-[#ffbade]">
@@ -54,8 +88,7 @@ const socialLinks = [
               {{ item.label }}
             </ULink>
           </nav>
-        </aside>
-      </details>
+      </aside>
 
       <div class="ml-[50px] mr-[25px] h-10 max-[760px]:ml-12 max-[760px]:mr-0 max-[760px]:h-9">
         <BrandLogo />

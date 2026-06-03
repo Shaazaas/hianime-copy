@@ -18,7 +18,7 @@ export default defineNuxtConfig({
   app: {
     viewTransition: false
   },
-  modules: ['@nuxt/ui'],
+  modules: ['@nuxt/eslint', '@nuxt/ui'],
   css: ['~/assets/css/tailwind.css'],
   ui: {
     theme: {

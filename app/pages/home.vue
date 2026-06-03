@@ -30,9 +30,9 @@ const { data } = await useFetch<HomeCatalog>('/api/anilist/home', {
 })
 
 useSeoMeta({
-  title: 'HiAnime Free Anime Streaming Homepage',
+  title: 'HiAnime Anime Catalog Homepage',
   description: 'Browse trending, popular, airing, completed, and recommended anime from an AniList-backed HiAnime catalog.',
-  ogTitle: 'HiAnime Free Anime Streaming Homepage',
+  ogTitle: 'HiAnime Anime Catalog Homepage',
   ogDescription: 'Browse trending, popular, airing, completed, and recommended anime from an AniList-backed HiAnime catalog.',
   ogImage: '/images/hianime-archive-logo.png',
   twitterCard: 'summary_large_image',
@@ -62,13 +62,6 @@ const genreList = computed(() => {
   return [...genres].slice(0, 38)
 })
 
-const sidebarPosts = [
-  'Best anime to watch with friends',
-  'Fall simulcast picks worth tracking',
-  'Community watch rooms are open',
-  'How to find subbed and dubbed titles'
-]
-
 function gridItems(items: AnimeListItem[], count = 12) {
   return items.slice(0, count)
 }
@@ -92,7 +85,7 @@ function gridItems(items: AnimeListItem[], count = 12) {
               <img v-for="item in data.trending.slice(0, 5)" :key="item.id" :src="item.coverImage" :alt="item.displayTitle" class="h-full w-full object-cover opacity-82">
             </div>
             <div class="flex h-[90px] min-w-[268px] items-center justify-center bg-[#293dc6] px-5 text-center text-[22px] font-semibold leading-tight text-white max-[520px]:h-[47px] max-[520px]:min-w-[156px] max-[520px]:text-xs">
-              Free Movies & Series<br>Streaming Online HD
+              Anime Catalog<br>Powered by AniList
             </div>
             <ULink raw to="/filter" class="grid h-[90px] w-[118px] place-items-center bg-[#ffdf1f] text-lg font-semibold text-black max-[520px]:h-[47px] max-[520px]:w-[72px] max-[520px]:text-xs">
               WATCH
@@ -128,8 +121,8 @@ function gridItems(items: AnimeListItem[], count = 12) {
               <div class="mb-4 flex flex-wrap items-center gap-3">
                 <h2 class="mr-2 text-[22px] font-semibold leading-[1.3] text-[#ffbade]">Latest Episodes</h2>
                 <UButton to="/filter?status=airing" size="sm" class="rounded bg-[#ffbade] px-3 py-1 text-xs font-medium text-[#111] ring-0">All</UButton>
-                <UButton to="/filter?format=TV" size="sm" color="neutral" variant="soft" class="rounded bg-white/10 px-3 py-1 text-xs font-medium text-white ring-0">Subbed</UButton>
-                <UButton to="/filter?sort=popular" size="sm" color="neutral" variant="soft" class="rounded bg-white/10 px-3 py-1 text-xs font-medium text-white ring-0">Dubbed</UButton>
+                <UButton to="/filter?format=TV" size="sm" color="neutral" variant="soft" class="rounded bg-white/10 px-3 py-1 text-xs font-medium text-white ring-0">TV</UButton>
+                <UButton to="/filter?sort=popular" size="sm" color="neutral" variant="soft" class="rounded bg-white/10 px-3 py-1 text-xs font-medium text-white ring-0">Popular</UButton>
               </div>
               <div class="grid grid-cols-6 gap-x-4 gap-y-5 max-[1320px]:grid-cols-5 max-[980px]:grid-cols-4 max-[760px]:grid-cols-3 max-[520px]:grid-cols-2">
                 <AnimeCard v-for="item in latestEpisodes" :key="item.id" :media="item" />
@@ -169,20 +162,20 @@ function gridItems(items: AnimeListItem[], count = 12) {
             </section>
 
             <section class="mb-10 overflow-hidden rounded bg-[#3a3951]">
-              <img src="/images/hianime-download-apk.webp" alt="Download HiAnime app" width="500" height="210" class="w-full">
+              <img src="/images/hianime-download-apk.webp" alt="HiAnime catalog artwork" width="500" height="210" class="w-full">
               <div class="p-5">
-                <h2 class="mb-2 text-xl font-semibold text-[#ffbade]">HiAnime App</h2>
+                <h2 class="mb-2 text-xl font-semibold text-[#ffbade]">HiAnime Catalog</h2>
                 <p class="text-sm text-[#ddd]">Fast browsing, compact cards, and anime discovery in one place.</p>
               </div>
             </section>
 
             <section class="mb-10">
-              <SectionHeader title="Community" />
+              <SectionHeader title="Airing Now" />
               <div class="grid gap-3">
-                <article v-for="post in sidebarPosts" :key="post" class="rounded bg-white/[0.05] p-4">
-                  <h3 class="line-clamp-2 text-sm font-medium leading-snug text-white">{{ post }}</h3>
-                  <p class="mt-2 text-xs text-[#aaa]">Join the discussion</p>
-                </article>
+                <ULink v-for="item in data.schedule.slice(0, 4)" :key="item.id" raw :to="detailPath(item)" class="rounded bg-white/[0.05] p-4 hover:bg-white/[0.08]">
+                  <h3 class="line-clamp-2 text-sm font-medium leading-snug text-white">{{ item.displayTitle }}</h3>
+                  <p class="mt-2 text-xs text-[#aaa]">{{ formatKind(item.badges.format) }} / {{ formatDuration(item.badges.duration) }}</p>
+                </ULink>
               </div>
             </section>
           </aside>

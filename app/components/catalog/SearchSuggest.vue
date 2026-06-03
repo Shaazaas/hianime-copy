@@ -8,6 +8,7 @@ const open = shallowRef(false)
 const debounced = refDebounced(query, 220)
 const results = shallowRef<AnimeListItem[]>([])
 const loading = shallowRef(false)
+const errorMessage = shallowRef('')
 const viewTransitionSource = useId()
 const { markAnimeViewTransition, sourceViewTransitionStyle } = useAnimeViewTransition()
 const props = withDefaults(defineProps<{ mode?: 'default' | 'header' | 'start' }>(), {
@@ -25,9 +26,9 @@ const formClass = computed(() => [
     : 'grid grid-cols-[minmax(180px,330px)_38px_52px] max-[720px]:w-full max-[720px]:grid-cols-[minmax(0,1fr)_38px_52px] max-[460px]:flex'
 ])
 const inputBaseClass = computed(() => isHeaderMode.value
-  ? 'h-[46px] rounded-none border-0 bg-white pl-5 text-[15px] font-semibold text-slate-700 placeholder:text-slate-500 focus-visible:ring-0'
+  ? 'h-[46px] rounded-none border-0 bg-white pl-5 text-[15px] font-semibold text-slate-700 placeholder:text-slate-500'
   : isStartMode.value
-    ? 'h-[50px] rounded-xl border-0 bg-white px-5 pr-5 text-base font-normal text-slate-700 placeholder:text-slate-500 focus-visible:ring-0'
+    ? 'h-[50px] rounded-xl border-0 bg-white px-5 pr-5 text-base font-normal text-slate-700 placeholder:text-slate-500'
   : 'h-9 rounded-r-none bg-[var(--catalog-bg-deep)] text-default')
 const searchButtonClass = computed(() => isHeaderMode.value
   ? 'h-[46px] rounded-none bg-white text-slate-950 ring-0 hover:bg-white'
@@ -49,15 +50,23 @@ watch(debounced, async (term, _previous, onCleanup) => {
 
   if (!search) {
     results.value = []
+    errorMessage.value = ''
     return
   }
 
   loading.value = true
+  errorMessage.value = ''
   try {
     results.value = await $fetch<AnimeListItem[]>('/api/anilist/search', {
       query: { q: search },
       signal: controller.signal
     })
+  } catch (error) {
+    const aborted = error instanceof DOMException && error.name === 'AbortError'
+    if (!aborted) {
+      results.value = []
+      errorMessage.value = 'Search failed. Try another title.'
+    }
   } finally {
     loading.value = false
   }
@@ -79,7 +88,7 @@ function submit() {
   <form :class="formClass" role="search" @submit.prevent="submit">
     <UInput
       v-model="query"
-      placeholder="Search anime..."
+      placeholder="Search anime…"
       name="keyword"
       autocomplete="off"
       aria-label="Search anime"
@@ -96,12 +105,13 @@ function submit() {
     </UButton>
 
     <UCard
-      v-show="open && (visibleResults.length || loading)"
+      v-show="open && (visibleResults.length || loading || errorMessage)"
       variant="subtle"
       class="absolute left-0 top-[calc(100%_+_8px)] z-40 w-[min(430px,90vw)] overflow-hidden"
       :ui="{ body: 'p-0 sm:p-0' }"
     >
-      <div v-if="loading" class="p-5 font-bold text-muted" aria-live="polite">Searching...</div>
+      <div v-if="loading" class="p-5 font-bold text-muted" aria-live="polite">Searching…</div>
+      <div v-else-if="errorMessage" class="p-5 text-sm font-semibold text-error" aria-live="polite">{{ errorMessage }}</div>
       <UPageList v-else divide>
         <ULink
           v-for="(item, index) in visibleResults"

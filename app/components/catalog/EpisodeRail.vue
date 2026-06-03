@@ -6,8 +6,8 @@ const props = defineProps<{
   selected: number
 }>()
 
-const episodeCount = computed(() => props.media.badges.episodes || 12)
-const episodes = computed(() => Array.from({ length: Math.min(episodeCount.value, 30) }, (_, index) => index + 1))
+const episodeCount = computed(() => props.media.badges.episodes)
+const episodes = computed(() => episodeCount.value ? Array.from({ length: Math.min(episodeCount.value, 30) }, (_, index) => index + 1) : [])
 const search = ref('')
 const view = ref<'list' | 'grid'>('list')
 const shieldSpoilers = ref(false)
@@ -33,7 +33,7 @@ function airedLabel(episode: number) {
   <aside class="catalog-surface min-h-0 rounded-md p-4">
     <div class="flex items-center gap-3">
       <h1 class="text-lg font-semibold text-white">Episodes</h1>
-      <UBadge color="neutral" variant="soft" class="rounded-md">{{ episodeCount }}</UBadge>
+      <UBadge color="neutral" variant="soft" class="rounded-md">{{ episodeCount || 'Unknown' }}</UBadge>
       <div class="ml-auto flex items-center gap-2">
         <UButton
           size="xs"
@@ -56,7 +56,7 @@ function airedLabel(episode: number) {
       </div>
     </div>
 
-    <div class="relative mt-3">
+    <div v-if="episodes.length" class="relative mt-3">
       <UInput
         v-model="search"
         size="sm"
@@ -79,6 +79,7 @@ function airedLabel(episode: number) {
     </div>
 
     <div
+      v-if="episodes.length"
       class="mt-4 max-h-[680px] overflow-y-auto pr-1 transition-all duration-300 max-[1060px]:max-h-[420px]"
       :class="view === 'grid' ? 'grid grid-cols-5 content-start gap-1.5 p-0.5 pt-1 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10' : 'flex flex-col gap-1.5'"
     >
@@ -125,6 +126,9 @@ function airedLabel(episode: number) {
       <div v-if="!filteredEpisodes.length" class="rounded-md border border-[var(--catalog-divider)] bg-white/[0.04] p-5 text-center text-sm text-muted">
         No episodes match your search.
       </div>
+    </div>
+    <div v-else class="mt-4 rounded-md border border-[var(--catalog-divider)] bg-white/[0.04] p-5 text-sm text-muted">
+      AniList does not list an episode count for this title yet.
     </div>
   </aside>
 </template>

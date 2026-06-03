@@ -3,38 +3,25 @@ import type { FilterCatalog } from '@/types/anime'
 import AnimeCard from '@/components/catalog/AnimeCard.vue'
 import AppFooter from '@/components/catalog/AppFooter.vue'
 import AppHeader from '@/components/catalog/AppHeader.vue'
+import {
+  catalogFormatOptions,
+  catalogGenres,
+  catalogSortOptions,
+  catalogStatusOptions,
+  normalizeCatalogFormat,
+  normalizeCatalogPage,
+  normalizeCatalogSort,
+  normalizeCatalogStatus
+} from '@/utils/catalogFilters'
 
 const route = useRoute()
 const router = useRouter()
 
-const genres = ['All', 'Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Isekai', 'Mecha', 'Music', 'Mystery', 'Romance', 'Sci-Fi', 'Slice of Life', 'Sports', 'Supernatural', 'Thriller']
-const statusOptions = [
-  { label: 'All', value: 'all' },
-  { label: 'Airing', value: 'airing' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Upcoming', value: 'upcoming' }
-]
-const formatOptions = [
-  { label: 'All', value: 'all' },
-  { label: 'TV', value: 'TV' },
-  { label: 'Movies', value: 'MOVIE' },
-  { label: 'OVA', value: 'OVA' },
-  { label: 'ONA', value: 'ONA' },
-  { label: 'Specials', value: 'SPECIAL' }
-]
-const sortOptions = [
-  { label: 'Default', value: 'default' },
-  { label: 'Trending', value: 'trending' },
-  { label: 'Score', value: 'score' },
-  { label: 'Favourites', value: 'favourites' },
-  { label: 'Latest', value: 'latest' }
-]
-
-const page = computed(() => Number.parseInt(String(route.query.page || '1'), 10) || 1)
-const status = computed(() => String(route.query.status || 'all'))
-const format = computed(() => String(route.query.format || 'all'))
+const page = computed(() => normalizeCatalogPage(route.query.page))
+const status = computed(() => normalizeCatalogStatus(route.query.status))
+const format = computed(() => normalizeCatalogFormat(route.query.format))
 const genre = computed(() => String(route.query.genre || 'all'))
-const sort = computed(() => String(route.query.sort || 'default'))
+const sort = computed(() => normalizeCatalogSort(route.query.sort))
 const search = computed(() => String(route.query.search || ''))
 
 const { data } = await useFetch<FilterCatalog>('/api/anilist/filter', {
@@ -84,19 +71,19 @@ useSeoMeta({
       <UCard title="Filter" variant="subtle" class="catalog-surface" :ui="{ title: 'text-base font-extrabold text-highlighted' }">
         <div class="mt-1 flex flex-wrap gap-4">
           <UFormField label="Status">
-            <USelect v-model="statusModel" :items="statusOptions" class="w-48" />
+            <USelect v-model="statusModel" :items="catalogStatusOptions" class="w-48" />
           </UFormField>
           <UFormField label="Format">
-            <USelect v-model="formatModel" :items="formatOptions" class="w-48" />
+            <USelect v-model="formatModel" :items="catalogFormatOptions" class="w-48" />
           </UFormField>
           <UFormField label="Sort">
-            <USelect v-model="sortModel" :items="sortOptions" class="w-48" />
+            <USelect v-model="sortModel" :items="catalogSortOptions" class="w-48" />
           </UFormField>
         </div>
         <h2 class="mt-7 text-base font-extrabold text-highlighted">Genres</h2>
         <div class="mt-3.5 flex flex-wrap gap-2">
           <UButton
-            v-for="item in genres"
+            v-for="item in catalogGenres"
             :key="item"
             size="sm"
             :variant="genre.toLowerCase() === item.toLowerCase() ? 'solid' : 'outline'"

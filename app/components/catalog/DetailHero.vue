@@ -55,7 +55,7 @@ function airedRange(media: AnimeDetail) {
           >
           <ULink raw :to="`/filter?search=${encodeURIComponent(media.displayTitle)}`" class="flex h-[38px] items-center justify-center gap-2 bg-[#11101d] text-sm font-semibold text-white hover:text-primary max-[760px]:h-8 max-[760px]:text-xs">
             <UIcon name="i-lucide-radio-tower" class="size-4 text-primary" />
-            Watch2gether
+            Find Similar
           </ULink>
         </div>
       </div>
@@ -74,14 +74,12 @@ function airedRange(media: AnimeDetail) {
         </h1>
 
         <div class="mt-7 flex flex-wrap items-center gap-2 text-sm text-white max-[760px]:mt-6 max-[760px]:justify-center" :style="destinationViewTransitionStyle('meta', media.id)">
-          <span class="rounded bg-white px-1.5 py-0.5 text-xs font-semibold text-[#111]">PG-13</span>
-          <span class="rounded bg-[var(--ui-color-primary-500)] px-1.5 py-0.5 text-xs font-semibold text-[#111]">HD</span>
           <span v-if="media.badges.episodes" class="inline-flex items-center gap-1 rounded bg-[#b0e3af] px-1.5 py-0.5 text-xs font-semibold text-[#111]">
             <UIcon name="i-lucide-captions" class="size-3" />
             {{ media.badges.episodes }}
           </span>
           <span v-if="media.badges.averageScore" class="inline-flex items-center gap-1 rounded bg-[#b9e7ff] px-1.5 py-0.5 text-xs font-semibold text-[#111]">
-            <UIcon name="i-lucide-mic" class="size-3" />
+            <UIcon name="i-lucide-star" class="size-3" />
             {{ media.badges.averageScore }}
           </span>
           <span v-if="media.badges.episodes" class="rounded bg-white/25 px-1.5 py-0.5 text-xs font-semibold text-white">{{ media.badges.episodes }}</span>
@@ -102,8 +100,8 @@ function airedRange(media: AnimeDetail) {
         </p>
 
         <p class="mt-6 max-w-[740px] text-sm leading-[1.55] text-white max-[760px]:hidden">
-          HiAnime is the best site to watch <strong>{{ media.displayTitle }}</strong> SUB online, or you can even watch <strong>{{ media.displayTitle }}</strong> DUB in HD quality.
-          <template v-if="media.studios.length"> You can also find <strong>{{ media.studios[0] }}</strong> anime on HiAnime website.</template>
+          HiAnime shows AniList-backed metadata for <strong>{{ media.displayTitle }}</strong>, including format, status, recommendations, and catalog context.
+          <template v-if="media.studios.length"> You can also find <strong>{{ media.studios[0] }}</strong> titles through the HiAnime catalog.</template>
         </p>
 
         <div class="mt-9 text-left max-[760px]:mb-6">

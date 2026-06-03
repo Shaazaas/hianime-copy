@@ -28,9 +28,9 @@ _Avoid_: Login flow, favourites management, comments, community, Watch2Gether, r
 The stable catalog identity for an anime title, represented by its AniList media ID with a readable title slug for URLs.
 _Avoid_: HiAnime slug, scraped provider ID
 
-**byanime**:
+**HiAnime**:
 The project identity for the AniList-backed anime catalog.
-_Avoid_: HiAnime
+_Avoid_: byanime
 
 **Reserved Panel**:
 An inert layout region that preserves reference-page geometry without displaying third-party advertising.
@@ -50,7 +50,7 @@ _Avoid_: Fake post, copied comment, community feed
 - **AniList Identity** is the source of truth for anime detail and watch routes
 - A **Reserved Panel** may occupy space where an ad appears in the reference screenshots
 - A **Catalog Widget** may replace community or trending-post areas when the reference layout needs a sidebar
-- **byanime** is the public name of the **AniList-backed Anime Catalog**
+- **HiAnime** is the public name of the **AniList-backed Anime Catalog**
 
 ## Example Dialogue
 
@@ -84,4 +84,4 @@ _Avoid_: Fake post, copied comment, community feed
 - Desktop layouts should match the provided screenshots first; mobile layouts should be usable but not treated as pixel-matched until mobile references exist.
 - Screenshot sections such as Top Airing, Most Popular, Most Favourite, Latest Completed, Top 10, and Recommended should map to the closest honest AniList sort or filter.
 - "Watch Now" should route to the **Playback Placeholder** for episode 1 when episodes are known; otherwise it should route to the anime detail page.
-- The app should use **byanime** as a distinct project name while matching the reference layout, spacing, colors, and interaction patterns.
+- The app should use **HiAnime** as the project name while matching the reference layout, spacing, colors, and interaction patterns.
