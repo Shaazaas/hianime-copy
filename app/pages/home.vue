@@ -5,6 +5,7 @@ import AppFooter from '@/components/catalog/AppFooter.vue'
 import AppHeader from '@/components/catalog/AppHeader.vue'
 import HomeHero from '@/components/catalog/HomeHero.vue'
 import SectionHeader from '@/components/catalog/SectionHeader.vue'
+import TrendingCarousel from '@/components/catalog/TrendingCarousel.vue'
 import { detailPath, formatDuration, formatKind } from '@/utils/anime'
 
 definePageMeta({
@@ -29,14 +30,8 @@ const { data } = await useFetch<HomeCatalog>('/api/anilist/home', {
   })
 })
 
-useSeoMeta({
-  title: 'HiAnime Anime Catalog Homepage',
-  description: 'Browse trending, popular, airing, completed, and recommended anime from an AniList-backed HiAnime catalog.',
-  ogTitle: 'HiAnime Anime Catalog Homepage',
-  ogDescription: 'Browse trending, popular, airing, completed, and recommended anime from an AniList-backed HiAnime catalog.',
-  ogImage: '/images/hianime-archive-logo.png',
-  twitterCard: 'summary_large_image',
-  twitterImage: '/images/hianime-archive-logo.png'
+useHianimeSeo({
+  ...hianimeHomeSeo
 })
 
 const latestEpisodes = computed(() => data.value.recommended.slice(0, 18))
@@ -75,23 +70,7 @@ function gridItems(items: AnimeListItem[], count = 12) {
       <HomeHero :items="data.spotlight" />
 
       <main id="main-content" class="mx-auto w-full max-w-[1800px] px-[15px]">
-        <section class="mb-10">
-          <SectionHeader title="Trending" to="/filter?sort=trending" />
-        </section>
-
-        <section class="mb-10 grid min-h-[90px] place-items-center md:mt-20">
-          <div class="flex w-[min(728px,100%)] items-center overflow-hidden bg-[#12131f] shadow-[0_14px_30px_rgba(0,0,0,.16)] max-[520px]:mx-[-15px] max-[520px]:w-[calc(100%+30px)]">
-            <div class="grid h-[90px] flex-1 grid-cols-5 overflow-hidden max-[520px]:h-[47px]">
-              <img v-for="item in data.trending.slice(0, 5)" :key="item.id" :src="item.coverImage" :alt="item.displayTitle" class="h-full w-full object-cover opacity-82">
-            </div>
-            <div class="flex h-[90px] min-w-[268px] items-center justify-center bg-[#293dc6] px-5 text-center text-[22px] font-semibold leading-tight text-white max-[520px]:h-[47px] max-[520px]:min-w-[156px] max-[520px]:text-xs">
-              Anime Catalog<br>Powered by AniList
-            </div>
-            <ULink raw to="/filter" class="grid h-[90px] w-[118px] place-items-center bg-[#ffdf1f] text-lg font-semibold text-black max-[520px]:h-[47px] max-[520px]:w-[72px] max-[520px]:text-xs">
-              WATCH
-            </ULink>
-          </div>
-        </section>
+        <TrendingCarousel :items="data.trending" />
 
         <section class="mb-10">
           <div class="text-xs">
@@ -101,11 +80,14 @@ function gridItems(items: AnimeListItem[], count = 12) {
         </section>
 
         <section class="mb-10 bg-white/[0.04] px-5 py-8 max-[760px]:mx-[-15px] max-[760px]:flex max-[760px]:justify-center">
-          <label class="inline-flex min-w-[190px] items-center justify-between gap-5 rounded-lg border border-white/20 px-4 py-2 text-base font-semibold leading-tight text-white">
-            Show<br>Comments
-            <input type="checkbox" class="peer sr-only" aria-label="Show comments">
-            <span class="relative h-5 w-10 rounded-full bg-white/20 after:absolute after:left-0.5 after:top-0.5 after:size-4 after:rounded-full after:bg-[#aaa] after:transition-transform peer-checked:bg-[#ffbade] peer-checked:after:translate-x-5 peer-checked:after:bg-[#111]" />
-          </label>
+          <div class="flex items-center gap-5">
+            <img src="/images/discussion.png" alt="" width="601" height="601" class="size-16 shrink-0">
+            <label class="inline-flex min-w-[190px] items-center justify-between gap-5 rounded-lg border border-white/20 px-4 py-2 text-base font-semibold leading-tight text-white">
+              Show<br>Comments
+              <input type="checkbox" class="peer sr-only" aria-label="Show comments">
+              <span class="relative h-5 w-10 rounded-full bg-white/20 after:absolute after:left-0.5 after:top-0.5 after:size-4 after:rounded-full after:bg-[#aaa] after:transition-transform peer-checked:bg-[#ffbade] peer-checked:after:translate-x-5 peer-checked:after:bg-[#111]" />
+            </label>
+          </div>
         </section>
 
         <div class="grid grid-cols-[minmax(0,1fr)_360px] gap-10 max-[1180px]:grid-cols-1">
@@ -162,7 +144,7 @@ function gridItems(items: AnimeListItem[], count = 12) {
             </section>
 
             <section class="mb-10 overflow-hidden rounded bg-[#3a3951]">
-              <img src="/images/hianime-download-apk.webp" alt="HiAnime catalog artwork" width="500" height="210" class="w-full">
+              <img src="/images/download-apk.webp" alt="HiAnime catalog artwork" width="565" height="835" class="w-full">
               <div class="p-5">
                 <h2 class="mb-2 text-xl font-semibold text-[#ffbade]">HiAnime Catalog</h2>
                 <p class="text-sm text-[#ddd]">Fast browsing, compact cards, and anime discovery in one place.</p>

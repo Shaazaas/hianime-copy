@@ -40,14 +40,12 @@ if (!media.value) {
   throw createError({ statusCode: 404, statusMessage: 'Anime not found' })
 }
 
-useSeoMeta({
-  title: () => media.value?.displayTitle || 'Anime',
-  description: () => media.value?.description || 'Watch anime details on HiAnime.',
-  ogTitle: () => media.value?.displayTitle || 'Anime',
-  ogDescription: () => media.value?.description || 'Watch anime details on HiAnime.',
-  ogImage: () => media.value?.coverImage || '/images/hianime-archive-logo.png',
-  twitterCard: 'summary_large_image',
-  twitterImage: () => media.value?.coverImage || '/images/hianime-archive-logo.png'
+const seo = computed(() => hianimeWatchSeo(media.value?.displayTitle || 'Anime'))
+
+useHianimeSeo({
+  title: () => seo.value.title,
+  description: () => seo.value.description,
+  keywords: () => seo.value.keywords
 })
 
 const seasonLinks = computed(() => {

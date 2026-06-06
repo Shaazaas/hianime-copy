@@ -9,6 +9,7 @@ import {
 
 const sortMap: Record<string, string[]> = {
   default: ['POPULARITY_DESC'],
+  popular: ['POPULARITY_DESC'],
   trending: ['TRENDING_DESC'],
   score: ['SCORE_DESC'],
   favourites: ['FAVOURITES_DESC'],

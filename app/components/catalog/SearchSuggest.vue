@@ -5,7 +5,7 @@ import { detailPath, formatDuration } from '@/utils/anime'
 
 const query = shallowRef('')
 const open = shallowRef(false)
-const debounced = refDebounced(query, 220)
+const debounced = refDebounced(query, 500)
 const results = shallowRef<AnimeListItem[]>([])
 const loading = shallowRef(false)
 const errorMessage = shallowRef('')
@@ -20,7 +20,7 @@ const isStartMode = computed(() => props.mode === 'start')
 const formClass = computed(() => [
   'relative items-center',
   isHeaderMode.value
-    ? 'hidden w-[min(35vw,520px)] grid-cols-[minmax(230px,1fr)_44px_62px] lg:grid'
+    ? 'hidden w-[400px] max-[1599px]:w-[360px] max-[1400px]:w-[290px] max-[1299px]:absolute max-[1299px]:left-0 max-[1299px]:top-[70px] max-[1299px]:z-[105] max-[1299px]:w-full max-[1299px]:bg-[#2d2b44] max-[1299px]:px-[15px] max-[1299px]:pb-2.5 lg:block'
     : isStartMode.value
       ? 'block w-full pr-[60px]'
     : 'grid grid-cols-[minmax(180px,330px)_38px_52px] max-[720px]:w-full max-[720px]:grid-cols-[minmax(0,1fr)_38px_52px] max-[460px]:flex'
@@ -48,7 +48,7 @@ watch(debounced, async (term, _previous, onCleanup) => {
   const controller = new AbortController()
   onCleanup(() => controller.abort())
 
-  if (!search) {
+  if (!search || search.length < 2) {
     results.value = []
     errorMessage.value = ''
     return
@@ -76,6 +76,10 @@ function close() {
   open.value = false
 }
 
+function show() {
+  open.value = true
+}
+
 function submit() {
   const term = query.value.trim()
   if (!term) return
@@ -85,10 +89,64 @@ function submit() {
 </script>
 
 <template>
-  <form :class="formClass" role="search" @submit.prevent="submit">
+  <form v-if="isHeaderMode" :class="formClass" role="search" autocomplete="off" @submit.prevent="submit">
+    <div class="search-content relative w-full">
+      <ULink raw to="/filter" class="filter-icon absolute right-[7px] top-[7px] z-[3] h-[26px] rounded-md bg-black px-1.5 text-[12.8px] font-normal leading-[26px] text-white hover:bg-[#ffbade] hover:text-black">
+        Filter
+      </ULink>
+      <input
+        v-model="query"
+        type="text"
+        name="keyword"
+        autocomplete="off"
+        required
+        placeholder="Search anime..."
+        aria-label="Search anime"
+        class="search-input relative h-10 w-full rounded-none border-0 bg-white py-0 pl-[15px] pr-[100px] text-sm font-normal text-[#111] shadow-[0_3px_3px_rgba(0,0,0,.05)] outline-none placeholder:text-slate-500 focus:shadow-[0_0_10px_rgba(0,0,0,.1)]"
+        @focus="show"
+        @input="show"
+      >
+      <button type="submit" class="search-icon absolute right-[50px] top-0 z-[2] inline-block h-10 w-10 border-0 bg-transparent px-2.5 text-center leading-10 text-[#111]" aria-label="Search">
+        <UIcon name="i-lucide-search" class="mx-auto size-4" />
+      </button>
+
+      <div
+        v-show="open && (visibleResults.length || loading || errorMessage)"
+        id="search-suggest"
+        class="search-result-pop absolute left-0 right-0 top-[41px] z-[6] overflow-hidden bg-[#2d2b44] shadow-[0_20px_20px_rgba(0,0,0,.3)]"
+        @mouseenter="show"
+        @mouseleave="close"
+      >
+        <div v-if="loading" id="search-loading" class="px-3 py-4 text-sm font-semibold text-white/60" aria-live="polite">Searching...</div>
+        <div v-else-if="errorMessage" class="px-3 py-4 text-sm font-semibold text-error" aria-live="polite">{{ errorMessage }}</div>
+        <div v-else class="result">
+          <ULink
+            v-for="(item, index) in visibleResults"
+            :key="item.id"
+            raw
+            :to="detailPath(item)"
+            class="nav-item grid min-h-[91px] w-full grid-cols-[50px_minmax(0,1fr)] gap-[15px] border-b border-dashed border-white/10 p-2.5 text-left hover:bg-white/[.05]"
+            @pointerdown="markAnimeViewTransition(item, viewTransitionKey(item, index))"
+            @click="markAnimeViewTransition(item, viewTransitionKey(item, index)); close()"
+          >
+            <span class="film-poster relative block h-[70px] w-[50px] overflow-hidden bg-white/10">
+              <img class="film-poster-img absolute inset-0 size-full object-cover" :style="sourceViewTransitionStyle('cover', item.id, viewTransitionKey(item, index))" :src="item.coverImage" :alt="item.displayTitle" loading="lazy">
+            </span>
+            <span class="srp-detail min-w-0 pt-0.5 text-xs text-[#aaa]">
+              <strong class="film-name mb-1 block h-[18px] max-w-full truncate text-sm font-semibold leading-[1.2em] text-white" :style="sourceViewTransitionStyle('title', item.id, viewTransitionKey(item, index))">{{ item.displayTitle }}</strong>
+              <em class="alias-name mb-1 block max-w-full truncate text-[13px] not-italic leading-[1.2em] text-[#aaa]">{{ item.badges.status ? item.badges.status.replaceAll('_', ' ') : 'Unknown' }}</em>
+              <small class="film-infor text-xs text-[#aaa]" :style="sourceViewTransitionStyle('meta', item.id, viewTransitionKey(item, index))">/ {{ item.badges.format || 'Unknown' }} / {{ formatDuration(item.badges.duration) }}</small>
+            </span>
+          </ULink>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <form v-else :class="formClass" role="search" @submit.prevent="submit">
     <UInput
       v-model="query"
-      placeholder="Search anime…"
+      placeholder="Search anime..."
       name="keyword"
       autocomplete="off"
       aria-label="Search anime"

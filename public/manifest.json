@@ -1,0 +1,24 @@
+{
+  "short_name": "HiAnime",
+  "name": "hianime.to",
+  "icons": [
+    {
+      "src": "/images/icons-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icons-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/home?source=pwa",
+  "theme_color": "#202125",
+  "background_color": "#202125",
+  "display": "standalone",
+  "scope": "/",
+  "description": "HiAnime is a Free anime streaming website which you can watch English Subbed and Dubbed Anime online with No Account and Daily update. WATCH NOW!"
+}

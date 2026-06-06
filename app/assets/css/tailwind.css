@@ -92,6 +92,76 @@
     background: color-mix(in srgb, var(--catalog-panel) 86%, transparent);
   }
 
+  .watch-stage {
+    grid-template-columns: 300px calc(75% - 300px) 30px calc(25% - 30px);
+  }
+
+  .watch-stage-expanded {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+
+  .watch-episodes {
+    grid-column: 1;
+    order: 1;
+  }
+
+  .watch-player {
+    grid-column: 2;
+    order: 2;
+  }
+
+  .watch-detail {
+    grid-column: 4;
+    order: 3;
+  }
+
+  .watch-stage-expanded .watch-episodes {
+    grid-column: 1;
+  }
+
+  .watch-stage-expanded .watch-player {
+    grid-column: 2;
+  }
+
+  @media (max-width: 1400px) and (min-width: 1200px) {
+    .watch-stage {
+      grid-template-columns: 300px minmax(0, 1fr);
+      margin-left: 30px;
+      margin-right: 30px;
+    }
+
+    .watch-stage .watch-detail {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 1199px) {
+    .watch-stage,
+    .watch-stage-expanded {
+      grid-template-columns: minmax(0, 1fr);
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .watch-episodes,
+    .watch-player,
+    .watch-detail {
+      grid-column: 1;
+    }
+
+    .watch-player {
+      order: 1;
+    }
+
+    .watch-episodes {
+      order: 2;
+    }
+
+    .watch-detail {
+      order: 3;
+    }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     .catalog-hover-lift {
       transition: transform 220ms ease, color 220ms ease, background-color 220ms ease, border-color 220ms ease;

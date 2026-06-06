@@ -23,9 +23,8 @@ const nav = [
   { label: 'Top Airing', to: '/filter?status=airing' }
 ]
 
-useSeoMeta({
-  title: 'Explore Anime Online',
-  description: 'HiAnime is an anime discovery website where you can browse AniList-backed catalog metadata with daily updates.'
+useHianimeSeo({
+  ...hianimeGenericSeo
 })
 </script>
 
@@ -61,10 +60,10 @@ useSeoMeta({
           <div class="relative mx-[-80px] overflow-hidden rounded-[40px] bg-white/[0.05] p-20 max-[1365px]:mx-0 max-[1199px]:p-[60px] max-[520px]:mx-[-15px] max-[520px]:rounded-none max-[520px]:p-[30px]">
             <div class="absolute inset-y-0 right-0 w-[650px] overflow-hidden rounded-r-[40px] max-[780px]:hidden">
               <img
-                src="/images/hianime-start-anw.webp"
+                src="/images/anw-min.webp"
                 alt=""
-                width="650"
-                height="471"
+                width="1091"
+                height="720"
                 fetchpriority="high"
                 class="absolute inset-0 h-full w-full object-cover opacity-50"
               >
@@ -73,7 +72,7 @@ useSeoMeta({
 
             <div class="relative z-[4] max-w-[500px]">
               <ULink raw to="/home" class="mb-[30px] inline-block max-[520px]:block max-[520px]:text-center" aria-label="HiAnime home">
-                <img src="/images/hianime-archive-logo.png" alt="HiAnime" width="823" height="200" class="h-10 w-auto max-[520px]:mx-auto">
+                <img src="/images/logo.png" alt="HiAnime" width="823" height="200" class="h-10 w-auto max-[520px]:mx-auto">
               </ULink>
 
               <SearchSuggest mode="start" />

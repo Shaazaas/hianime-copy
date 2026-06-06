@@ -11,6 +11,7 @@ const episodes = computed(() => episodeCount.value ? Array.from({ length: Math.m
 const search = ref('')
 const view = ref<'list' | 'grid'>('list')
 const shieldSpoilers = ref(false)
+const viewLabel = computed(() => view.value === 'list' ? 'Switch to grid episode view' : 'Switch to list episode view')
 
 const filteredEpisodes = computed(() => {
   const term = search.value.trim().toLowerCase()
@@ -30,10 +31,10 @@ function airedLabel(episode: number) {
 </script>
 
 <template>
-  <aside class="catalog-surface min-h-0 rounded-md p-4">
-    <div class="flex items-center gap-3">
-      <h1 class="text-lg font-semibold text-white">Episodes</h1>
-      <UBadge color="neutral" variant="soft" class="rounded-md">{{ episodeCount || 'Unknown' }}</UBadge>
+  <aside class="min-h-0 bg-[#191826] text-white">
+    <div class="flex h-[50px] items-center gap-3 border-b border-white/[0.04] px-[15px]">
+      <h2 class="text-[13px] font-semibold text-white">List of episodes</h2>
+      <span class="rounded bg-white/10 px-2 py-0.5 text-xs text-white/65">{{ episodeCount || 'Unknown' }}</span>
       <div class="ml-auto flex items-center gap-2">
         <UButton
           size="xs"
@@ -41,7 +42,9 @@ function airedLabel(episode: number) {
           color="neutral"
           variant="ghost"
           :icon="view === 'list' ? 'i-lucide-grid-2x2' : 'i-lucide-rows-3'"
-          aria-label="Toggle episode view"
+          :aria-label="viewLabel"
+          :title="viewLabel"
+          :aria-pressed="view === 'grid'"
           @click="view = view === 'list' ? 'grid' : 'list'"
         />
         <UButton
@@ -56,14 +59,15 @@ function airedLabel(episode: number) {
       </div>
     </div>
 
-    <div v-if="episodes.length" class="relative mt-3">
+    <div v-if="episodes.length" class="relative px-[15px] py-2.5">
       <UInput
         v-model="search"
         size="sm"
         icon="i-lucide-search"
-        placeholder="Search episodes"
+        placeholder="Number of Ep"
         aria-label="Search episodes"
         class="w-full"
+        :ui="{ base: 'h-[30px] rounded-none border-0 bg-[#201f31] text-xs text-white placeholder:text-white/40 ring-0' }"
       />
       <UButton
         v-if="search"
@@ -80,23 +84,23 @@ function airedLabel(episode: number) {
 
     <div
       v-if="episodes.length"
-      class="mt-4 max-h-[680px] overflow-y-auto pr-1 transition-all duration-300 max-[1060px]:max-h-[420px]"
-      :class="view === 'grid' ? 'grid grid-cols-5 content-start gap-1.5 p-0.5 pt-1 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 xl:grid-cols-9 2xl:grid-cols-10' : 'flex flex-col gap-1.5'"
+      class="catalog-scrollbar max-h-[590px] overflow-y-auto pb-[15px] transition-all duration-300 max-[1199px]:max-h-[467px]"
+      :class="view === 'grid' ? 'grid grid-cols-5 content-start px-2.5 text-center' : 'flex flex-col'"
     >
       <ULink
         v-for="episode in filteredEpisodes"
         :key="episode"
         raw
         :to="`/watch/${media.slug}?ep=${episode}`"
-        class="group relative overflow-hidden rounded transition duration-200 active:scale-[0.99]"
+        class="group relative overflow-hidden transition duration-200 active:scale-[0.99]"
         :class="view === 'grid'
           ? [
-              'flex h-9 w-full items-center justify-center text-[11px] font-bold tracking-wide',
-              episode === selected ? 'bg-[var(--ui-color-primary-500)] text-black' : 'bg-[var(--catalog-panel-soft)] text-default hover:bg-white/10 hover:text-white'
+              'm-0.5 flex h-[32px] w-full items-center justify-center rounded-[3px] text-[13px] font-semibold',
+              episode === selected ? 'bg-[#ffbade] text-[#111]' : 'bg-[#35373d] text-[#999] hover:bg-[#67686f] hover:text-white'
             ]
           : [
-              'flex h-20 w-full shrink-0 flex-row items-center border',
-              episode === selected ? 'pointer-events-none border-[var(--ui-color-primary-500)] bg-white/5' : 'border-white/5 bg-transparent hover:bg-white/5'
+              'flex min-h-[42px] w-full shrink-0 flex-row items-center',
+              episode === selected ? 'pointer-events-none bg-[#2b2a42] before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-[#ffbade]' : 'odd:bg-white/[0.03] hover:bg-[#2b2a42]'
             ]"
       >
         <template v-if="view === 'grid'">
@@ -104,30 +108,26 @@ function airedLabel(episode: number) {
         </template>
 
         <template v-else>
-          <img
-            class="h-[82px] w-[48%] shrink-0 object-cover opacity-80 transition duration-300 group-hover:scale-105"
-            :class="{ 'blur-md': shieldSpoilers }"
-            :src="media.coverImage"
-            :alt="`Episode ${episode}`"
-            loading="lazy"
-          >
-          <span class="absolute inset-y-0 left-0 w-[48%] bg-black/20" />
-          <div class="min-w-0 flex-1 px-3">
-            <p class="truncate text-sm font-semibold text-white">
-              {{ episode }}. Episode {{ episode }}
+          <span class="absolute left-2.5 top-1/2 w-5 -translate-y-1/2 text-center text-sm font-semibold" :class="episode === selected ? 'text-[#ffbade]' : 'text-[#bbb] group-hover:text-white'">{{ episode }}</span>
+          <div class="min-w-0 flex-1 pl-[45px] pr-11">
+            <p class="truncate py-3 text-[13px] font-normal leading-[1.4]" :class="episode === selected ? 'text-white' : 'text-[#ccc] group-hover:text-[#ffbade]'">
+              Episode {{ episode }}
             </p>
-            <p class="mt-1 truncate text-xs text-muted">
+            <p class="-mt-2 mb-2 truncate text-[11px] leading-[1.2] opacity-50">
               {{ shieldSpoilers ? 'Spoiler shield enabled' : airedLabel(episode) }}
             </p>
           </div>
+          <span v-if="episode === selected" class="absolute right-2.5 top-1/2 grid size-5 -translate-y-1/2 place-items-center rounded-full bg-[#ffbade] text-[8px] text-[#111]">
+            <UIcon name="i-lucide-play" class="ml-px size-2.5" />
+          </span>
         </template>
       </ULink>
 
-      <div v-if="!filteredEpisodes.length" class="rounded-md border border-[var(--catalog-divider)] bg-white/[0.04] p-5 text-center text-sm text-muted">
+      <div v-if="!filteredEpisodes.length" class="bg-[#201f31] p-5 text-center text-sm text-white/55">
         No episodes match your search.
       </div>
     </div>
-    <div v-else class="mt-4 rounded-md border border-[var(--catalog-divider)] bg-white/[0.04] p-5 text-sm text-muted">
+    <div v-else class="p-[15px] text-sm text-white/55">
       AniList does not list an episode count for this title yet.
     </div>
   </aside>

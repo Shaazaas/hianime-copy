@@ -58,8 +58,17 @@ const paginationPage = computed({
   set: value => updateQuery({ page: value })
 })
 
-useSeoMeta({
-  title: 'Filter'
+const seo = computed(() => {
+  if (sort.value === 'popular' || sort.value === 'favourites') return hianimeMostPopularSeo
+  if (status.value === 'airing') return hianimeTopAiringSeo
+
+  return hianimeGenericSeo
+})
+
+useHianimeSeo({
+  title: () => seo.value.title,
+  description: () => seo.value.description,
+  keywords: () => seo.value.keywords
 })
 </script>
 

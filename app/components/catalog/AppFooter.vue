@@ -34,7 +34,7 @@ const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
       <div class="mt-6 flex flex-wrap gap-4 text-xs text-white/60">
         <ULink raw to="/home" class="hover:text-[#ffbade]">Home</ULink>
         <ULink raw to="/filter" class="hover:text-[#ffbade]">Filter</ULink>
-        <ULink raw to="/filter?sort=popular" class="hover:text-[#ffbade]">Most Popular</ULink>
+        <ULink raw to="/most-popular" class="hover:text-[#ffbade]">Most Popular</ULink>
         <small>© HiAnime. All rights reserved.</small>
       </div>
     </div>

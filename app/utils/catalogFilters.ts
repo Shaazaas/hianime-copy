@@ -1,4 +1,4 @@
-export const catalogGenres = ['All', 'Action', 'Adventure', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Isekai', 'Mecha', 'Music', 'Mystery', 'Romance', 'Sci-Fi', 'Slice of Life', 'Sports', 'Supernatural', 'Thriller'] as const
+export const catalogGenres = ['All', 'Action', 'Adventure', 'Cars', 'Comedy', 'Dementia', 'Demons', 'Drama', 'Ecchi', 'Fantasy', 'Game', 'Harem', 'Historical', 'Horror', 'Isekai', 'Josei', 'Kids', 'Magic', 'Martial Arts', 'Mecha', 'Military', 'Music', 'Mystery', 'Parody', 'Police', 'Psychological', 'Romance', 'Samurai', 'School', 'Sci-Fi', 'Seinen', 'Shoujo', 'Shoujo Ai', 'Shounen', 'Shounen Ai', 'Slice of Life', 'Space', 'Sports', 'Super Power', 'Supernatural', 'Thriller', 'Vampire'] as const
 
 export const catalogStatusOptions = [
   { label: 'All', value: 'all' },
@@ -18,6 +18,7 @@ export const catalogFormatOptions = [
 
 export const catalogSortOptions = [
   { label: 'Default', value: 'default' },
+  { label: 'Most Popular', value: 'popular' },
   { label: 'Trending', value: 'trending' },
   { label: 'Score', value: 'score' },
   { label: 'Favourites', value: 'favourites' },
