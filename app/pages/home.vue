@@ -6,6 +6,7 @@ import AppHeader from '@/components/catalog/AppHeader.vue'
 import HomeHero from '@/components/catalog/HomeHero.vue'
 import SectionHeader from '@/components/catalog/SectionHeader.vue'
 import TrendingCarousel from '@/components/catalog/TrendingCarousel.vue'
+import { aniLinkWatchPath, formatAniLinkTimestamp } from '@/utils/anilink'
 import { detailPath, formatDuration, formatKind } from '@/utils/anime'
 
 definePageMeta({
@@ -35,6 +36,7 @@ useHianimeSeo({
 })
 
 const latestEpisodes = computed(() => data.value.recommended.slice(0, 18))
+const { items: continueWatchingItems, load: loadContinueWatching, remove: removeContinueWatching } = useAniLinkContinueWatching()
 const newOnHianime = computed(() => [
   ...data.value.trending,
   ...data.value.popular,
@@ -60,6 +62,14 @@ const genreList = computed(() => {
 function gridItems(items: AnimeListItem[], count = 12) {
   return items.slice(0, count)
 }
+
+function progressPercent(position: number, duration?: number) {
+  if (!duration || duration <= 0) return 0
+
+  return Math.min(100, Math.max(0, Math.round((position / duration) * 100)))
+}
+
+onMounted(loadContinueWatching)
 </script>
 
 <template>
@@ -71,6 +81,38 @@ function gridItems(items: AnimeListItem[], count = 12) {
 
       <main id="main-content" class="mx-auto w-full max-w-[1800px] px-[15px]">
         <TrendingCarousel :items="data.trending" />
+
+        <section v-if="continueWatchingItems.length" class="mb-10">
+          <SectionHeader title="Continue Watching" />
+          <div class="grid grid-cols-6 gap-x-4 gap-y-5 max-[1320px]:grid-cols-5 max-[980px]:grid-cols-4 max-[760px]:grid-cols-3 max-[520px]:grid-cols-2">
+            <article v-for="item in continueWatchingItems" :key="`${item.anilistId}-${item.episodeNumber}-${item.variant}`" class="group min-w-0">
+              <ULink raw :to="aniLinkWatchPath(item)" class="relative block aspect-[5/7] overflow-hidden bg-white/10" :aria-label="`Resume ${item.title} episode ${item.episodeNumber}`">
+                <img class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" :src="item.coverImage" :alt="item.title" loading="lazy">
+                <div class="absolute inset-x-0 bottom-0 h-3/5 bg-[linear-gradient(0deg,#201f31_0%,rgba(32,31,49,0)_58%)]" />
+                <div class="absolute inset-0 bg-black/0 opacity-0 backdrop-blur-md transition-opacity duration-300 group-hover:opacity-100">
+                  <UIcon name="i-lucide-play" class="absolute left-1/2 top-1/2 size-8 -translate-x-1/2 -translate-y-1/2 text-white" />
+                </div>
+                <span class="absolute left-2 top-2 rounded bg-[#ffbade] px-2 py-1 text-xs font-semibold uppercase leading-none text-[#111]">{{ item.variant }}</span>
+                <div class="absolute inset-x-2 bottom-2">
+                  <div class="h-1 overflow-hidden rounded-full bg-white/20">
+                    <div class="h-full rounded-full bg-[#ffbade]" :style="{ width: `${progressPercent(item.position, item.duration)}%` }" />
+                  </div>
+                </div>
+              </ULink>
+              <div class="mt-2 flex items-start gap-2">
+                <ULink raw :to="aniLinkWatchPath(item)" class="min-w-0 flex-1">
+                  <strong class="line-clamp-1 text-base font-medium leading-[1.3] text-white hover:text-[#ffbade] max-[520px]:text-[13px]">{{ item.title }}</strong>
+                  <small class="mt-1 block truncate text-sm text-[#aaa] max-[520px]:text-xs">
+                    {{ item.position > 0 ? `Continue E${item.episodeNumber} from ${formatAniLinkTimestamp(item.position)}` : `Continue E${item.episodeNumber}` }}
+                  </small>
+                </ULink>
+                <button type="button" class="grid size-7 shrink-0 place-items-center rounded bg-white/10 text-white/65 hover:bg-[#ffbade] hover:text-[#111]" :aria-label="`Remove ${item.title} from Continue Watching`" @click="removeContinueWatching(item.anilistId, item.episodeNumber, item.variant)">
+                  <UIcon name="i-lucide-x" class="size-4" />
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
 
         <section class="mb-10">
           <div class="text-xs">

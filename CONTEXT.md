@@ -1,6 +1,6 @@
 # HiAnime Catalog
 
-This context defines the anime catalog experience being recreated: a HiAnime-inspired browsing interface backed by AniList metadata, without streaming implementation.
+This context defines the anime catalog experience being recreated: a HiAnime-inspired browsing interface backed by AniList metadata and a host-owned watch experience.
 
 ## Language
 
@@ -8,13 +8,29 @@ This context defines the anime catalog experience being recreated: a HiAnime-ins
 An anime discovery and detail experience whose titles, images, rankings, schedules, characters, and metadata come from AniList.
 _Avoid_: Streaming site, scraper, player API
 
-**Playback Placeholder**:
-A non-functional watch-page surface that preserves the layout around episode selection and player controls until real playback is designed later.
-_Avoid_: Anime player, stream provider, video API
+**Playback Surface**:
+A host-owned watch-page surface where selected episodes can be played while the surrounding catalog, episode list, controls, and resume flows remain part of HiAnime.
+_Avoid_: Stream API, scraped provider, vendor-owned watch page
+
+**Playback Preferences**:
+Viewer-controlled playback choices owned by HiAnime, such as autoplay, muted playback, automatic next episode behavior, and automatic marker skipping.
+_Avoid_: Provider settings, iframe defaults, browser settings
+
+**Continue Watching**:
+A host-owned resume surface for unfinished episode playback that lets viewers return to a specific title, episode, audio variant, and approximate position.
+_Avoid_: Auto-next, watch history, provider account
+
+**Audio Variant**:
+The selected episode audio/subtitle presentation, currently represented by SUB or DUB in the watch interface.
+_Avoid_: Server, source, language setting
 
 **Episode Selection**:
-A routeable catalog interaction that identifies an AniList title and an episode number without loading playable media.
+A routeable catalog interaction that identifies an AniList title and an episode number for the watch experience. The selected episode should remain host-owned even when playback advances it.
 _Avoid_: Stream selection, server selection
+
+**Released Episode Count**:
+The number of episodes that are currently available for **Episode Selection** according to AniList metadata. For releasing titles, it stops before AniList's next airing episode.
+_Avoid_: Total planned episode count, future episode placeholders
 
 **Honest Metadata Fallback**:
 A visible omission or clearly labeled substitute used when AniList lacks a field shown in the reference UI.
@@ -42,11 +58,18 @@ _Avoid_: Fake post, copied comment, community feed
 
 ## Relationships
 
-- An **AniList-backed Anime Catalog** may show a **Playback Placeholder**
-- A **Playback Placeholder** must not fetch or embed real streaming media
-- **Episode Selection** may update a **Playback Placeholder**
+- An **AniList-backed Anime Catalog** may show a **Playback Surface**
+- A **Playback Surface** may embed playback while keeping catalog identity, controls, and resume behavior host-owned
+- A **Playback Surface** may apply **Playback Preferences**
+- **Continue Watching** resumes a **Playback Surface** from an explicit viewer action
+- **Continue Watching** may advance to the next **Episode Selection** after episode completion
+- **Continue Watching** includes the selected **Audio Variant**
+- **Episode Selection** may be paired with an **Audio Variant**
+- **Episode Selection** is limited by the **Released Episode Count**
+- **Episode Selection** may update a **Playback Surface**
+- A **Playback Surface** may update **Episode Selection** when playback advances episodes
 - An **AniList-backed Anime Catalog** uses an **Honest Metadata Fallback** when AniList does not provide exact HiAnime-style data
-- A **First-pass Catalog Loop** includes **Episode Selection** but excludes real playback and community features
+- A **First-pass Catalog Loop** includes **Episode Selection** but excludes account, comments, favourites, and community features
 - **AniList Identity** is the source of truth for anime detail and watch routes
 - A **Reserved Panel** may occupy space where an ad appears in the reference screenshots
 - A **Catalog Widget** may replace community or trending-post areas when the reference layout needs a sidebar
@@ -54,11 +77,26 @@ _Avoid_: Fake post, copied comment, community feed
 
 ## Example Dialogue
 
-> **Dev:** "Should the watch page call a video provider when the user clicks an episode?"
-> **Domain expert:** "No — for now it is only a **Playback Placeholder**. The catalog data still comes from the **AniList-backed Anime Catalog**."
+> **Dev:** "Should the watch page become a separate provider site when the user clicks an episode?"
+> **Domain expert:** "No — playback belongs inside the **Playback Surface**. The catalog data still comes from the **AniList-backed Anime Catalog**."
 
 > **Dev:** "Can `/watch/1/3` change which episode is highlighted?"
-> **Domain expert:** "Yes — that is **Episode Selection**, but it still does not imply streaming."
+> **Domain expert:** "Yes — that is **Episode Selection**, and it may update the **Playback Surface**."
+
+> **Dev:** "If playback advances from episode 3 to episode 4, should the episode list still show episode 3?"
+> **Domain expert:** "No — **Episode Selection** is host-owned and should follow the current episode."
+
+> **Dev:** "Are Auto Play and Auto Skip provider settings?"
+> **Domain expert:** "No — they are **Playback Preferences** owned by HiAnime and applied to the **Playback Surface**."
+
+> **Dev:** "Is Auto Next the same thing as Continue Watching?"
+> **Domain expert:** "No — **Continue Watching** is an explicit resume surface for unfinished playback. Auto Next is a **Playback Preference**."
+
+> **Dev:** "If a viewer finishes episode 3, should Continue Watching disappear?"
+> **Domain expert:** "No — when another episode exists, **Continue Watching** can advance to episode 4 as the next explicit resume action."
+
+> **Dev:** "Are SUB and DUB servers?"
+> **Domain expert:** "No — they are **Audio Variants**. A server or source would be a separate playback provider choice."
 
 > **Dev:** "AniList does not tell us the exact sub and dub counts for this show. Should we make them up to match the badge layout?"
 > **Domain expert:** "No — use an **Honest Metadata Fallback** such as episode count, format, or omit the missing badge."
@@ -77,11 +115,11 @@ _Avoid_: Fake post, copied comment, community feed
 
 ## Flagged Ambiguities
 
-- "Recreating HiAnime" means recreating the visible catalog, detail, filter, and watch-page layouts from screenshots; it does not mean copying comments, third-party ads, stream APIs, or scraped playback behavior.
+- "Recreating HiAnime" means recreating the visible catalog, detail, filter, and watch-page layouts from screenshots; it does not mean copying comments, third-party ads, stream APIs, or scraped provider behavior.
 - UI primitives are provided by Nuxt UI v4. Compose `U*` components and semantic Nuxt UI theme tokens instead of restoring copied shadcn-vue components.
 - AniList data should be fetched through Nuxt server API routes, not directly from Vue components.
 - AniList server API responses may use short public caching because catalog metadata is not expected to change minute-by-minute.
 - Desktop layouts should match the provided screenshots first; mobile layouts should be usable but not treated as pixel-matched until mobile references exist.
 - Screenshot sections such as Top Airing, Most Popular, Most Favourite, Latest Completed, Top 10, and Recommended should map to the closest honest AniList sort or filter.
-- "Watch Now" should route to the **Playback Placeholder** for episode 1 when episodes are known; otherwise it should route to the anime detail page.
+- "Watch Now" should route to the **Playback Surface** for episode 1 when episodes are known; otherwise it should route to the anime detail page.
 - The app should use **HiAnime** as the project name while matching the reference layout, spacing, colors, and interaction patterns.

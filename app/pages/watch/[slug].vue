@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AnimeDetail, HomeCatalog } from '@/types/anime'
-import { detailPath, formatDuration, formatKind, idFromSlug } from '@/utils/anime'
+import type { AniLinkVariant } from '@/utils/anilink'
+import { detailPath, formatDuration, formatKind, idFromSlug, releasedEpisodeCount } from '@/utils/anime'
 import AnimeCard from '@/components/catalog/AnimeCard.vue'
 import AppFooter from '@/components/catalog/AppFooter.vue'
 import AppHeader from '@/components/catalog/AppHeader.vue'
@@ -9,9 +10,56 @@ import SectionHeader from '@/components/catalog/SectionHeader.vue'
 import WatchShell from '@/components/catalog/WatchShell.vue'
 
 const route = useRoute()
+const router = useRouter()
 const id = computed(() => idFromSlug(route.params.slug))
-const selected = computed(() => Math.max(1, Number.parseInt(String(route.query.ep || '1'), 10) || 1))
+const requestedEpisode = computed(() => Math.max(1, Number.parseInt(String(route.query.ep || '1'), 10) || 1))
+const start = computed(() => {
+  const value = Number.parseFloat(String(route.query.start || ''))
+
+  return Number.isFinite(value) && value > 0 ? value : undefined
+})
+const initialVariant = computed(() => route.query.variant === 'dub' ? 'dub' : 'sub')
+const activeEpisode = ref(requestedEpisode.value)
+const activeVariant = ref<AniLinkVariant>(initialVariant.value)
 const playerExpanded = ref(false)
+
+watch(initialVariant, (variant) => {
+  activeVariant.value = variant
+})
+
+function replaceWatchQuery(episode: number, variant: AniLinkVariant) {
+  const nextQuery = {
+    ...route.query,
+    ep: String(episode),
+    variant
+  }
+
+  delete nextQuery.start
+
+  return router.replace({
+    path: route.path,
+    query: nextQuery
+  })
+}
+
+function handleEpisodeChange(episode: number) {
+  const count = availableEpisodeCount.value
+  const nextEpisode = count ? Math.min(episode, count) : episode
+
+  activeEpisode.value = nextEpisode
+
+  if (nextEpisode === selected.value && activeVariant.value === initialVariant.value) return
+
+  replaceWatchQuery(nextEpisode, activeVariant.value)
+}
+
+function handleVariantChange(variant: AniLinkVariant) {
+  activeVariant.value = variant
+
+  if (activeEpisode.value === selected.value && variant === initialVariant.value) return
+
+  replaceWatchQuery(activeEpisode.value, variant)
+}
 
 if (!id.value) {
   throw createError({ statusCode: 404, statusMessage: 'Anime not found' })
@@ -23,6 +71,36 @@ const { data: home } = await useFetch<HomeCatalog>('/api/anilist/home')
 if (!media.value) {
   throw createError({ statusCode: 404, statusMessage: 'Anime not found' })
 }
+
+const availableEpisodeCount = computed(() => releasedEpisodeCount(media.value!))
+const selected = computed(() => {
+  const count = availableEpisodeCount.value
+
+  return count ? Math.min(requestedEpisode.value, count) : requestedEpisode.value
+})
+const playbackEpisode = computed(() => {
+  const count = availableEpisodeCount.value
+
+  return count ? Math.min(activeEpisode.value, count) : activeEpisode.value
+})
+
+activeEpisode.value = selected.value
+
+if (availableEpisodeCount.value <= 0) {
+  await navigateTo(detailPath(media.value), { replace: true })
+} else if (requestedEpisode.value > availableEpisodeCount.value) {
+  await navigateTo({
+    path: route.path,
+    query: {
+      ...route.query,
+      ep: String(availableEpisodeCount.value)
+    }
+  }, { replace: true })
+}
+
+watch(selected, (episode) => {
+  activeEpisode.value = episode
+}, { immediate: true })
 
 const seo = computed(() => hianimeWatchSeo(media.value?.displayTitle || 'Anime'))
 
@@ -56,10 +134,19 @@ useHianimeSeo({
         :class="playerExpanded ? 'watch-stage-expanded' : 'watch-stage'"
       >
         <div class="watch-episodes">
-          <EpisodeRail :media="media" :selected="selected" />
+          <EpisodeRail :media="media" :selected="playbackEpisode" :variant="activeVariant" />
         </div>
         <div class="watch-player">
-          <WatchShell v-model:expanded="playerExpanded" :media="media" :selected="selected" />
+          <WatchShell
+            v-model:expanded="playerExpanded"
+            :media="media"
+            :selected="playbackEpisode"
+            :active-episode="playbackEpisode"
+            :start="start"
+            :initial-variant="initialVariant"
+            @episode-change="handleEpisodeChange"
+            @variant-change="handleVariantChange"
+          />
         </div>
         <aside v-if="!playerExpanded" class="watch-detail px-0 pb-0 pt-[25px] text-white max-[1400px]:col-span-full max-[1400px]:py-[35px] max-[1199px]:px-2.5 max-[1199px]:py-[25px]">
           <article class="max-[1400px]:grid max-[1400px]:min-h-[120px] max-[1400px]:grid-cols-[80px_minmax(0,1fr)] max-[1400px]:gap-5 max-[520px]:grid-cols-[70px_minmax(0,1fr)]">
@@ -69,9 +156,9 @@ useHianimeSeo({
               <div class="mb-5 flex flex-wrap items-center gap-0 text-xs font-semibold max-[1400px]:mb-2.5">
                 <span class="flex h-5 items-center rounded-l bg-white px-1.5 font-[Arial] text-xs leading-none text-[#111]">{{ media.badges.averageScore ? 'PG-13' : 'PG' }}</span>
                 <span class="ml-0.5 flex h-5 items-center bg-[#ffbade] px-1.5 font-[Arial] text-xs leading-none text-[#111]">HD</span>
-                <span class="ml-0.5 flex h-5 items-center bg-[#b0e3af] px-1.5 font-[Arial] text-xs leading-none text-[#111]"><UIcon name="i-lucide-captions" class="mr-1 size-3" />{{ selected }}</span>
-                <span class="ml-0.5 flex h-5 items-center bg-[#b9e7ff] px-1.5 font-[Arial] text-xs leading-none text-[#111]"><UIcon name="i-lucide-mic" class="mr-1 size-3" />{{ Math.min((media.badges.episodes || selected), selected + 1) }}</span>
-                <span class="ml-0.5 flex h-5 items-center rounded-r bg-white/20 px-1.5 font-[Arial] text-xs leading-none text-white">{{ media.badges.episodes || '?' }}</span>
+                <span class="ml-0.5 flex h-5 items-center bg-[#b0e3af] px-1.5 font-[Arial] text-xs leading-none text-[#111]"><UIcon name="i-lucide-captions" class="mr-1 size-3" />{{ playbackEpisode }}</span>
+                <span class="ml-0.5 flex h-5 items-center bg-[#b9e7ff] px-1.5 font-[Arial] text-xs leading-none text-[#111]"><UIcon name="i-lucide-mic" class="mr-1 size-3" />{{ Math.min((availableEpisodeCount || playbackEpisode), playbackEpisode + 1) }}</span>
+                <span class="ml-0.5 flex h-5 items-center rounded-r bg-white/20 px-1.5 font-[Arial] text-xs leading-none text-white">{{ availableEpisodeCount || '?' }}</span>
                 <span class="mx-2 size-1 rounded-full bg-white/30" />
                 <span class="my-1 text-white/75">{{ formatKind(media.badges.format) }}</span>
                 <span class="mx-2 size-1 rounded-full bg-white/30" />

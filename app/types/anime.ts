@@ -12,6 +12,12 @@ export interface AnimeBadgeSet {
   averageScore: number | null
 }
 
+export interface NextAiringEpisode {
+  airingAt: number
+  episode: number
+  timeUntilAiring: number
+}
+
 export interface AnimeListItem {
   id: number
   slug: string
@@ -23,6 +29,7 @@ export interface AnimeListItem {
   seasonYear: number | null
   genres: string[]
   badges: AnimeBadgeSet
+  nextAiringEpisode: NextAiringEpisode | null
 }
 
 export interface AnimeCharacter {

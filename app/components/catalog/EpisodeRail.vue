@@ -1,17 +1,22 @@
 <script setup lang="ts">
 import type { AnimeDetail } from '@/types/anime'
+import type { AniLinkVariant } from '@/utils/anilink'
+import { formatAiringDate, nextAiringDate, releasedEpisodeCount } from '@/utils/anime'
 
 const props = defineProps<{
   media: AnimeDetail
   selected: number
+  variant?: AniLinkVariant
 }>()
 
-const episodeCount = computed(() => props.media.badges.episodes)
+const episodeCount = computed(() => releasedEpisodeCount(props.media))
 const episodes = computed(() => episodeCount.value ? Array.from({ length: Math.min(episodeCount.value, 30) }, (_, index) => index + 1) : [])
 const search = ref('')
 const view = ref<'list' | 'grid'>('list')
 const shieldSpoilers = ref(false)
 const viewLabel = computed(() => view.value === 'list' ? 'Switch to grid episode view' : 'Switch to list episode view')
+const nextAiringAt = computed(() => nextAiringDate(props.media))
+const nextAiringLabel = computed(() => formatAiringDate(nextAiringAt.value))
 
 const filteredEpisodes = computed(() => {
   const term = search.value.trim().toLowerCase()
@@ -28,13 +33,23 @@ function airedLabel(episode: number) {
 
   return episode === 1 ? `Aired: ${props.media.startDate}` : `Episode ${episode}`
 }
+
+function episodePath(episode: number) {
+  return {
+    path: `/watch/${props.media.slug}`,
+    query: {
+      ep: String(episode),
+      variant: props.variant || 'sub'
+    }
+  }
+}
 </script>
 
 <template>
   <aside class="min-h-0 bg-[#191826] text-white">
     <div class="flex h-[50px] items-center gap-3 border-b border-white/[0.04] px-[15px]">
       <h2 class="text-[13px] font-semibold text-white">List of episodes</h2>
-      <span class="rounded bg-white/10 px-2 py-0.5 text-xs text-white/65">{{ episodeCount || 'Unknown' }}</span>
+      <span class="rounded bg-white/10 px-2 py-0.5 text-xs text-white/65">{{ episodeCount || 'None released' }}</span>
       <div class="ml-auto flex items-center gap-2">
         <UButton
           size="xs"
@@ -91,7 +106,7 @@ function airedLabel(episode: number) {
         v-for="episode in filteredEpisodes"
         :key="episode"
         raw
-        :to="`/watch/${media.slug}?ep=${episode}`"
+        :to="episodePath(episode)"
         class="group relative overflow-hidden transition duration-200 active:scale-[0.99]"
         :class="view === 'grid'
           ? [
@@ -128,7 +143,12 @@ function airedLabel(episode: number) {
       </div>
     </div>
     <div v-else class="p-[15px] text-sm text-white/55">
-      AniList does not list an episode count for this title yet.
+      No released episodes are listed for this title yet.
+    </div>
+
+    <div v-if="media.nextAiringEpisode && nextAiringLabel" class="border-t border-white/[0.06] bg-[#201f31] p-[15px] text-xs leading-[1.5] text-white/65">
+      <strong class="block text-[13px] font-semibold text-[#ffbade]">Episode {{ media.nextAiringEpisode.episode }} releases next</strong>
+      <span>{{ nextAiringLabel }}</span>
     </div>
   </aside>
 </template>

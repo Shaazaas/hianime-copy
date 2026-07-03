@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import type { AnimeDetail } from '@/types/anime'
+import { aniLinkWatchPath, formatAniLinkTimestamp } from '@/utils/anilink'
 import { formatDuration, formatKind, watchPath } from '@/utils/anime'
 
-defineProps<{
+const props = defineProps<{
   media: AnimeDetail
 }>()
 
 const { destinationViewTransitionStyle } = useAnimeViewTransition()
+const { latestForMedia, load: loadContinueWatching } = useAniLinkContinueWatching()
+const resumeItem = computed(() => latestForMedia(props.media.id))
 
 function formatArchiveDate(value: string | null) {
   if (!value) return 'Unknown'
@@ -26,6 +29,8 @@ function airedRange(media: AnimeDetail) {
 
   return end && end !== 'Unknown' ? `${start} to ${end}` : start
 }
+
+onMounted(loadContinueWatching)
 </script>
 
 <template>
@@ -92,6 +97,17 @@ function airedRange(media: AnimeDetail) {
         <div class="my-9 flex flex-wrap gap-3 max-[760px]:my-8 max-[760px]:justify-center">
           <UButton :to="watchPath(media)" size="lg" icon="i-lucide-play" class="h-[42px] rounded-full bg-[var(--ui-color-primary-500)] px-6 text-base font-medium text-[#111] ring-0 hover:bg-[var(--ui-color-primary-500)] max-[760px]:h-[42px] max-[760px]:px-8">
             Watch now
+          </UButton>
+          <UButton
+            v-if="resumeItem"
+            :to="aniLinkWatchPath(resumeItem)"
+            size="lg"
+            color="neutral"
+            variant="soft"
+            icon="i-lucide-rotate-ccw"
+            class="h-[42px] rounded-full bg-[#4c4b67] px-6 text-base font-medium text-white ring-0 hover:bg-[#565573] max-[760px]:h-[42px] max-[760px]:px-8"
+          >
+            {{ resumeItem.position > 0 ? `Resume E${resumeItem.episodeNumber} at ${formatAniLinkTimestamp(resumeItem.position)}` : `Continue E${resumeItem.episodeNumber}` }}
           </UButton>
         </div>
 

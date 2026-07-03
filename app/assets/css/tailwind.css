@@ -160,6 +160,10 @@
     .watch-detail {
       order: 3;
     }
+
+    .watch-stage-expanded .watch-episodes {
+      display: none;
+    }
   }
 
   @media (prefers-reduced-motion: no-preference) {

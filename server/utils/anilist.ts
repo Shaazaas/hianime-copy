@@ -34,6 +34,11 @@ interface GraphMedia {
   format: string | null
   status: string | null
   averageScore: number | null
+  nextAiringEpisode: {
+    airingAt: number
+    episode: number
+    timeUntilAiring: number
+  } | null
   synonyms?: string[]
   startDate?: GraphDate
   endDate?: GraphDate
@@ -134,6 +139,7 @@ export const listMediaFragment = `
   format
   status
   averageScore
+  nextAiringEpisode { airingAt episode timeUntilAiring }
 `
 
 export function normalizeMedia(media: GraphMedia): AnimeListItem {
@@ -155,7 +161,8 @@ export function normalizeMedia(media: GraphMedia): AnimeListItem {
       format: media.format,
       status: media.status,
       averageScore: media.averageScore
-    }
+    },
+    nextAiringEpisode: media.nextAiringEpisode
   }
 }
 
